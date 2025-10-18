@@ -1,0 +1,335 @@
+ * { 
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+        .hidden {
+            display: none;
+        }
+
+        .signup-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2520 100%);
+        }
+
+        .signup-form-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(40, 40, 40, 0.95);
+            padding: 50px 60px;
+            border-radius: 20px;
+            width: 450px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+
+        .signup-form-container h1 {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #fff;
+            padding-bottom: 10px;
+            display: inline-block;
+            width: 100%;
+            color: #fff;
+        }
+
+        .worker-toggle {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .worker-toggle button {
+            background: transparent;
+            border: 2px solid #d97f3e;
+            color: #d97f3e;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .worker-toggle button:hover {
+            background: #d97f3e;
+            color: #fff;
+        }
+
+        .name-group {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .name-group .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .name-group input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 20px 0 10px 0;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .name-group input:focus {
+            border-bottom-color: #d97f3e;
+        }
+
+        .name-group input::placeholder {
+            color: transparent;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 20px 30px 10px 0;
+            font-size: 14px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input::placeholder,
+        .form-group select::placeholder,
+        .form-group textarea::placeholder {
+            color: transparent;
+        }
+
+        .form-group label {
+            position: absolute;
+            left: 0;
+            top: 15px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group select:focus + label,
+        .form-group select:not([value=""]) + label,
+        .form-group textarea:focus + label,
+        .form-group textarea:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 11px;
+            color: #d97f3e;
+        }
+
+        .name-group .form-group label {
+            position: absolute;
+            left: 0;
+            top: 15px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .name-group input:focus + label,
+        .name-group input:not(:placeholder-shown) + label {
+            top: 0;
+            font-size: 11px;
+            color: #d97f3e;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            padding-right: 20px;
+        }
+
+        .form-group select option {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-bottom-color: #d97f3e;
+        }
+
+        .form-group textarea:focus {
+            border-color: #d97f3e;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+        }
+
+        .form-group i {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .terms input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+            margin-top: 2px;
+            accent-color: #d97f3e;
+            cursor: pointer;
+        }
+
+        .terms a {
+            color: #4a9eff;
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-create {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to bottom, #d97f3e, #1f1711);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: capitalize;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(217, 127, 62, 0.4);
+            background: linear-gradient(to bottom, #e88d4d, #151010);
+        }
+
+        .login-link {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin-top: 25px;
+        }
+
+        .login-link a {
+            color: #d97f3e;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .icon {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 11px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .worker-badge {
+            display: inline-block;
+            background: #d97f3e;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 10px;
+            font-weight: 500;
+        }
+        .hidden {
+            display: none !important;
+            visibility: hidden !important;
+        }
