@@ -51,6 +51,17 @@
             width: 100%;
             color: #fff;
         }
+        /* Fix Chrome white background on autofill */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        select:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px rgba(40, 40, 40, 0.95) inset !important; /* matches .signup-form-container background */
+            -webkit-text-fill-color: #ffffff !important; /* make text white */
+            caret-color: #ffffff !important;
+            transition: background-color 9999s ease-in-out 0s !important; /* prevent white flash */
+}
 
         .worker-toggle {
             text-align: center;
@@ -292,6 +303,8 @@
             margin-left: 10px;
             font-weight: 500;
         }
+
+        
     </style>
 </head>
 <body>
@@ -305,103 +318,105 @@
 
             <!-- Regular User Signup Form -->
             <form id="signupForm" class="signup-form" method="POST" action="">
-                <input type="hidden" name="user_type" value="regular">
-                
-                <div class="name-group">
-                    <div class="form-group">
-                        <input type="text" name="first_name" placeholder="First Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" name="last_name" placeholder="Last Name" required>
-                    </div>
-                </div>
+    <input type="hidden" name="user_type" value="regular">
 
-                <div class="form-group">
-                    <input type="email" name="email" placeholder="Email" required>
-                </div>
+    <div class="name-group">
+        <div class="form-group">
+            <input type="text" name="first_name" placeholder="First Name" required maxlength="30" pattern="[A-Za-z\s]+" title="Letters only">
+        </div>
+        <div class="form-group">
+            <input type="text" name="last_name" placeholder="Last Name" required maxlength="30" pattern="[A-Za-z\s]+" title="Letters only">
+        </div>
+    </div>
 
-                <div class="form-group">
-                    <input type="text" name="username" placeholder="Username" required>
-                </div>
+    <div class="form-group">
+        <input type="email" name="email" placeholder="Email" required maxlength="50">
+    </div>
 
-                <div class="form-group">
-                    <input type="password" name="password" placeholder="Password" required minlength="8">
-                </div>
+    <div class="form-group">
+        <input type="text" name="username" placeholder="Username" required maxlength="20" pattern="[A-Za-z0-9_]+" title="Letters, numbers, and underscores only">
+    </div>
 
-                <div class="form-group">
-                    <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
-                    <small class="password-message"></small>
-                </div>
+    <div class="form-group">
+        <input type="password" name="password" placeholder="Password" required minlength="8" maxlength="30">
+    </div>
 
-                <div class="terms">
-                    <input type="checkbox" name="terms" required>
-                    <label>I agree to the <a href="">Terms and Privacy</a></label>
-                </div>
-                
-                <button type="submit" name="signup" class="btn-create">Create Account</button>
-            </form>
+    <div class="form-group">
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required minlength="8" maxlength="30">
+        <small class="password-message"></small>
+    </div>
+
+    <div class="terms">
+        <input type="checkbox" name="terms" required>
+        <label>I agree to the <a href="">Terms and Privacy</a></label>
+    </div>
+    
+    <button type="submit" name="signup" class="btn-create">Create Account</button>
+</form>
+
 
             <!-- Worker Signup Form -->
             <form id="workerSignupForm" class="signup-form hidden" method="POST" action="">
-                <input type="hidden" name="user_type" value="worker">
-                
-                <div class="name-group">
-                    <div class="form-group">
-                        <input type="text" name="first_name" placeholder="First Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" name="last_name" placeholder="Last Name" required>
-                    </div>
-                </div>
+    <input type="hidden" name="user_type" value="worker">
 
-                <div class="form-group">
-                    <input type="email" name="email" placeholder="Email" required>
-                </div>
+    <div class="name-group">
+        <div class="form-group">
+            <input type="text" name="first_name" placeholder="First Name" required maxlength="30" pattern="[A-Za-z\s]+" title="Letters only">
+        </div>
+        <div class="form-group">
+            <input type="text" name="last_name" placeholder="Last Name" required maxlength="30" pattern="[A-Za-z\s]+" title="Letters only">
+        </div>
+    </div>
 
-                <div class="form-group">
-                    <input type="text" name="contact" placeholder="Contact" required>
-                </div>
+    <div class="form-group">
+        <input type="email" name="email" placeholder="Email" required maxlength="50">
+    </div>
 
-                <div class="form-group">
-                    <input type="text" name="username" placeholder="Username" required>
-                </div>
+    <div class="form-group">
+        <input type="tel" name="contact" placeholder="Contact (e.g. 09123456789)" required pattern="^09\d{9}$" maxlength="11" title="Must start with 09 and be 11 digits long">
+    </div>
 
-                <div class="form-group">
-                    <input type="tel" name="address" placeholder="Address" required>
-                </div>
+    <div class="form-group">
+        <input type="text" name="username" placeholder="Username" required maxlength="20" pattern="[A-Za-z0-9_]+" title="Letters, numbers, and underscores only">
+    </div>
 
-                <div class="form-group">
-                    <select name="service_id" required>
-                        <option value="">Select Service Type</option>
-                        <option value="1">Pluming</option>
-                        <option value="2">Electrical Repair</option>
-                        <option value="3">Auto Repair</option>
-                        <option value="4">Wellness</option>
-                        <option value="5">Repair and Technical Support</option>
-                        <option value="6">Pets</option>
-                    </select>
-                </div>
+    <div class="form-group">
+        <input type="text" name="address" placeholder="Address" required maxlength="100">
+    </div>
 
-                <div class="form-group">
-                    <textarea name="bio" placeholder="Tell us about your skills and experience..." required></textarea>
-                </div>
+    <div class="form-group">
+        <select name="service_id" required>
+            <option value="">Select Service Type</option>
+            <option value="1">Plumbing</option>
+            <option value="2">Electrical Repair</option>
+            <option value="3">Auto Repair</option>
+            <option value="4">Wellness</option>
+            <option value="5">Repair and Technical Support</option>
+            <option value="6">Pets</option>
+        </select>
+    </div>
 
-                <div class="form-group">
-                    <input type="password" name="password" placeholder="Password" required minlength="8">
-                </div>
+    <div class="form-group">
+        <textarea name="bio" placeholder="Tell us about your skills and experience..." required maxlength="300"></textarea>
+    </div>
 
-                <div class="form-group">
-                    <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
-                    <small class="password-message"></small>
-                </div>
+    <div class="form-group">
+        <input type="password" name="password" placeholder="Password" required minlength="8" maxlength="30">
+    </div>
 
-                <div class="terms">
-                    <input type="checkbox" name="terms" required>
-                    <label>I agree to the <a href="">Terms and Privacy</a></label>
-                </div>
-                
-                <button type="submit" name="signup_worker" class="btn-create">Apply as Worker</button>
-            </form>
+    <div class="form-group">
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required minlength="8" maxlength="30">
+        <small class="password-message"></small>
+    </div>
+
+    <div class="terms">
+        <input type="checkbox" name="terms" required>
+        <label>I agree to the <a href="">Terms and Privacy</a></label>
+    </div>
+    
+    <button type="submit" name="signup_worker" class="btn-create">Apply as Worker</button>
+</form>
+
                 
             <div class="login-link">
                 Already have an account? <a href="login.php">Log in</a>
