@@ -17,19 +17,22 @@ if ($conn->connect_error) {
     exit();
 }
 
-$worker_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 $fullname = $_POST['fullname'] ?? '';
 $username = $_POST['username'] ?? '';
 $email = $_POST['email'] ?? '';
 $address = $_POST['address'] ?? '';
 $password = $_POST['password'] ?? '';
+$service_id = $_POST['service_id'] ?? null;
 
 $parts = explode(' ', trim($fullname));
 $first_name = $parts[0] ?? '';
 $last_name = isset($parts[1]) ? implode(' ', array_slice($parts, 1)) : '';
 
-$stmt = $conn->prepare("UPDATE workers SET first_name=?, last_name=?, email=?, phone=?, address=?, service_id=? WHERE user_id=?");
-$stmt->bind_param("sssssi", $first_name, $last_name, $email, $address, $password, $user_id);
+$stmt = $conn->prepare("UPDATE users 
+                        SET first_name=?, last_name=?, email=?, password=? WHERE user_id=?");
+
+$stmt->bind_param("ssssi", $first_name, $last_name, $email, $password, $user_id);
 
 if ($stmt->execute()) {
     echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully']);
