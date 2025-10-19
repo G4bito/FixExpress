@@ -93,6 +93,7 @@ if ($result && $result->num_rows > 0) {
       <meta name="keywords" content="." />
       <meta name="author" content="Sniper 2025" />
       <link rel="stylesheet" href="./dist/assets/css/index.css" /> 
+      <a href="/FixExpress/PWA/dist/admin/website_ratings.php">Website Ratings</a>
       
       
     </head>

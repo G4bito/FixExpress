@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 password = ? 
                 WHERE user_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssi", $first_name, $last_name, $username, $email, $hashed_password, $user_id);
+        $stmt->bind_param("sssss", $first_name, $last_name, $username, $email, $hashed_password);
     } else {
         // Update without changing password
         $sql = "UPDATE users SET 
