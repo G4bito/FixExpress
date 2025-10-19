@@ -36,6 +36,8 @@ $result = $service->getAllServices();
       background: linear-gradient(145deg, #2d1e0b, #a54e07, #ff7b00);
       font-family: 'Open Sans', sans-serif;
       color: #fff;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
     }
     h4 {
   text-align: center;

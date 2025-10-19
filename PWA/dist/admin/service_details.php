@@ -344,17 +344,22 @@ $row = $result->fetch_assoc();
 
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" name="fullname" placeholder="Enter your full name" required>
+        <input type="text" name="fullname" placeholder="Enter your full name" required pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" title="Please enter a valid full name (e.g., Charles D. Gervacio)">
+
         </div>
 
         <div class="form-group">
           <label>Contact Number</label>
-          <input type="text" name="contact" placeholder="e.g. 09123456789" required>
+          <input type="text" name="contact" placeholder="e.g. 09123456789 or +639123456789" required pattern="^(09\d{9}|\+639\d{9})$" title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
+
         </div>
 
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" placeholder="you@example.com" required>
+          <label>Email Address</label>
+            <input type="text" id="email" name="email"
+           placeholder="you@example.com"
+           required>
+    <small id="emailError" style="color:red;display:none;"></small>
         </div>
 
         <div class="form-group">
@@ -393,24 +398,67 @@ $row = $result->fetch_assoc();
   </div>
 
   <script>
-    function openModal(workerId) {
-      document.getElementById('bookingModal').style.display = 'flex';
-      document.getElementById('workerId').value = workerId;
-    }
+const bookingForm = document.getElementById("bookingForm");
+const emailInput  = document.getElementById("email");
+const emailError  = document.getElementById("emailError");
 
-    function closeModal() {
-      document.getElementById('bookingModal').style.display = 'none';
-    }
+function isStrictEmail(value) {
+  value = value.trim();
 
-    function closeSuccess() {
-      document.getElementById('successPopup').style.display = 'none';
-    }
+  // Basic structure check
+  const re = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+  if (!re.test(value)) return false;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === '1') {
-      document.getElementById('successPopup').style.display = 'flex';
-      history.replaceState(null, "", window.location.pathname);
-    }
-  </script>
+  // Split into parts
+  const parts = value.split("@");
+  if (parts.length !== 2) return false;
+
+  const domainParts = parts[1].split(".");
+  if (domainParts.length < 2) return false;
+
+  // Ensure domain (like gmail) has at least one letter
+  const domain = domainParts[0];
+  const tld = domainParts[domainParts.length - 1];
+  if (!/^[A-Za-z0-9-]+$/.test(domain)) return false;
+  if (!/^[A-Za-z]{2,}$/.test(tld)) return false;
+
+  return true;
+}
+
+bookingForm.addEventListener("submit", function (e) {
+  const email = emailInput.value.trim();
+
+  if (!isStrictEmail(email)) {
+    e.preventDefault();
+    emailError.textContent = "Please enter a valid email address (e.g., you@example.com)";
+    emailError.style.display = "block";
+    emailInput.style.borderColor = "red";
+    emailInput.focus();
+  } else {
+    emailError.style.display = "none";
+    emailInput.style.borderColor = "";
+  }
+});
+
+function openModal(workerId) {
+  document.getElementById('bookingModal').style.display = 'flex';
+  document.getElementById('workerId').value = workerId;
+}
+
+function closeModal() {
+  document.getElementById('bookingModal').style.display = 'none';
+}
+
+function closeSuccess() {
+  document.getElementById('successPopup').style.display = 'none';
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('success') === '1') {
+  document.getElementById('successPopup').style.display = 'flex';
+  history.replaceState(null, "", window.location.pathname);
+}
+</script>
+
 </body>
 </html>
