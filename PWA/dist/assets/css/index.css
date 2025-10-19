@@ -88,8 +88,6 @@
             color: #c85a28;
         }
 
-        
-
         .get-started-btn {
             background: linear-gradient(to bottom, #d97843, #a94824) !important;
             color: white !important;
@@ -800,20 +798,6 @@
   text-align: center;
   perspective: 1000px;
 }
-/* Fix for View All Ratings button */
-.view-ratings-container {
-    position: relative;
-    z-index: 10;
-    margin-top: 50px;
-}
-
-.view-ratings-container .view-all-btn {
-    cursor: pointer;
-    pointer-events: auto;
-    display: inline-block;
-    text-decoration: none;
-}
-
 
 /* Animated glowing background */
 .feedback-bg {
@@ -823,7 +807,6 @@
               radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.05), transparent 60%);
   animation: feedbackGlow 10s ease-in-out infinite alternate;
   z-index: 0;
-  pointer-events: none;
 }
 @keyframes feedbackGlow {
   0% { transform: scale(1) translate(0, 0); opacity: 0.8; }
