@@ -438,8 +438,8 @@ $row = $result->fetch_assoc();
         </div>
 
         <div class="form-group" style="margin-bottom: 30px;">
-          <label>Additional Notes (Optional)</label>
-          <textarea name="notes" placeholder="Add details about your request..."></textarea>
+          <label>Please Specify Your Problem <span style="color: #ff0000;">*</span></label>
+          <textarea name="notes" placeholder="Please describe your problem in detail..." required></textarea>
         </div>
 
         <div style="margin-top: -10px; text-align: center;">
