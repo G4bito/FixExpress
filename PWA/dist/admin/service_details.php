@@ -356,15 +356,13 @@ $row = $result->fetch_assoc();
 
         <div class="form-group">
           <label>Email Address</label>
-            <input type="text" id="email" name="email"
-           placeholder="you@example.com"
-           required>
-    <small id="emailError" style="color:red;display:none;"></small>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.com(\.ph)?$" title="Please enter a valid email ending with .com (e.g., you@example.com)">
         </div>
 
         <div class="form-group">
           <label>Complete Address</label>
-          <textarea name="address" placeholder="Street, Barangay, City, Province" required></textarea>
+          <textarea name="address" placeholder="House No., Street, Barangay, City, Province, ZIP Code" required pattern="^[A-Za-z0-9\s.,#-]{10,}\s\d{4}$" title="Please enter a complete address with ZIP code (e.g., 123 Rizal St., Brgy. Poblacion, Calasiao, Pangasinan 2418)"></textarea>
+
         </div>
 
         <div class="form-group half">
@@ -398,48 +396,6 @@ $row = $result->fetch_assoc();
   </div>
 
   <script>
-const bookingForm = document.getElementById("bookingForm");
-const emailInput  = document.getElementById("email");
-const emailError  = document.getElementById("emailError");
-
-function isStrictEmail(value) {
-  value = value.trim();
-
-  // Basic structure check
-  const re = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-  if (!re.test(value)) return false;
-
-  // Split into parts
-  const parts = value.split("@");
-  if (parts.length !== 2) return false;
-
-  const domainParts = parts[1].split(".");
-  if (domainParts.length < 2) return false;
-
-  // Ensure domain (like gmail) has at least one letter
-  const domain = domainParts[0];
-  const tld = domainParts[domainParts.length - 1];
-  if (!/^[A-Za-z0-9-]+$/.test(domain)) return false;
-  if (!/^[A-Za-z]{2,}$/.test(tld)) return false;
-
-  return true;
-}
-
-bookingForm.addEventListener("submit", function (e) {
-  const email = emailInput.value.trim();
-
-  if (!isStrictEmail(email)) {
-    e.preventDefault();
-    emailError.textContent = "Please enter a valid email address (e.g., you@example.com)";
-    emailError.style.display = "block";
-    emailInput.style.borderColor = "red";
-    emailInput.focus();
-  } else {
-    emailError.style.display = "none";
-    emailInput.style.borderColor = "";
-  }
-});
-
 function openModal(workerId) {
   document.getElementById('bookingModal').style.display = 'flex';
   document.getElementById('workerId').value = workerId;
