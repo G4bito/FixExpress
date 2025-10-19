@@ -2,11 +2,11 @@
 include '../database/server.php';
 include 'includes/admin_auth.php';
 
-// Fetch bookings
-$result = $conn->query("SELECT * FROM bookings ORDER BY booking_id DESC");
+// Fetch bookings with service names
+$result = $conn->query("SELECT b.*, s.service_name FROM bookings b LEFT JOIN services s ON b.service_id = s.service_id ORDER BY b.booking_id DESC");
 
-// Fetch workers
-$workersResult = $conn->query("SELECT * FROM workers ORDER BY worker_id DESC");
+// Fetch workers (include service name)
+$workersResult = $conn->query("SELECT w.*, s.service_name FROM workers w LEFT JOIN services s ON w.service_id = s.service_id ORDER BY w.worker_id DESC");
 
 // Fetch users
 $usersResult = $conn->query("SELECT * FROM users ORDER BY user_id DESC");
@@ -403,6 +403,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                         <th>Address</th>
                         <th>Date</th>
                         <th>Time</th>
+                        <th>Service</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -418,6 +419,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                                 <td><?= htmlspecialchars($row['address']) ?></td>
                                 <td><?= htmlspecialchars($row['date']) ?></td>
                                 <td><?= htmlspecialchars($row['time']) ?></td>
+                                <td><?= htmlspecialchars($row['service_name'] ?? 'Unknown Service') ?></td>
                                 <td>
                                     <?php
                                     $statusClass = match($row['status']) {
@@ -537,7 +539,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                                 <td><?= htmlspecialchars($worker['contact']) ?></td>
                                 <td><?= htmlspecialchars($worker['email']) ?></td>
                                 <td><?= htmlspecialchars($worker['address']) ?></td>
-                                <td><?= htmlspecialchars($worker['service_id']) ?></td>
+                                <td><?= htmlspecialchars($worker['service_name'] ?? 'Unknown Service') ?></td>
                                 <td><?= htmlspecialchars($worker['experience']) ?></td>
                                 <td>
                                     <?php
