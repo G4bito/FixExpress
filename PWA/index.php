@@ -165,7 +165,7 @@
             </div>
         </div>
 
-        <a href="#" class="btn btn-primary btn-large">Get Started Now</a>
+        <a href="signup.php" class="btn btn-primary btn-large">Get Started Now</a>
     </section>
     <!-- Expert Repair Solutions Section -->
     <section class="services-section" id="services">
