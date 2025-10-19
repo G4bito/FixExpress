@@ -152,12 +152,24 @@ h4::after {
       }
     }
     .home-btn {
+      position: fixed;
+      top: 25px;
+      left: 30px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: linear-gradient(145deg, #ffb347, #ff7b00);
-      color: #fff;
-      border: none;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9em;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      z-index: 1000;
       border-radius: 10px;
       padding: 8px 16px;
       font-weight: 600;
@@ -168,9 +180,9 @@ h4::after {
     }
 
     .home-btn:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(145deg, #ffcc66, #ff9a00);
-      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     }
 
     .home-btn:active {

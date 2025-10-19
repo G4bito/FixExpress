@@ -66,6 +66,46 @@ $row = $result->fetch_assoc();
       --spacing-xxl: 30px;           /* Double extra large spacing for containers */
     }
 
+    /* Back Button */
+    .back-btn {
+      position: fixed;
+      top: 25px;
+      left: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9em;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      transition: transform 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .back-btn:hover svg {
+      transform: translateX(-3px);
+    }
+
     /* Reset & Base Styles */
     body {
       font-family: 'Open Sans', sans-serif;
@@ -360,6 +400,14 @@ $row = $result->fetch_assoc();
 </head>
 
 <body>
+  <!-- Back Button -->
+  <a href="/FixExpress/PWA/dist/admin/template01.php" class="back-btn">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+    </svg>
+    Back
+  </a>
+
   <div class="service-container">
     <div class="service-icon"><i class="<?php echo $row['icon']; ?>"></i></div>
     <h2><?php echo $row['service_name']; ?></h2>
