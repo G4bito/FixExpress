@@ -1274,8 +1274,10 @@ function viewDetails(bookingId) {
 
             bookingDetailsContent.innerHTML = `
                 <div style="display: grid; gap: 20px;">
-                    <div class="detail-group">
-                        <h4 style="color: #333; margin-bottom: 15px;">Booking Information</h4>
+                    <div class="detail-group" style="padding-bottom: 20px;">
+                        <h4 style="color: #333; margin-bottom: 15px; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                            Booking Information
+                        </h4>
                         <div style="display: grid; gap: 10px;">
                             <p><strong>Service:</strong> ${booking.service_name}</p>
                             <p><strong>Status:</strong> <span class="badge bg-${statusClass}">${booking.status}</span></p>
@@ -1285,13 +1287,28 @@ function viewDetails(bookingId) {
                         </div>
                     </div>
 
-                    <div class="detail-group">
-                        <h4 style="color: #333; margin-bottom: 15px;">Customer Information</h4>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 0;">
+
+                    <div class="detail-group" style="padding-bottom: 20px;">
+                        <h4 style="color: #333; margin-bottom: 15px; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                            Customer Information
+                        </h4>
                         <div style="display: grid; gap: 10px;">
                             <p><strong>Name:</strong> ${booking.fullname}</p>
                             <p><strong>Address:</strong> ${booking.address}</p>
                             <p><strong>Email:</strong> ${booking.email}</p>
                             <p><strong>Contact:</strong> ${booking.contact}</p>
+                        </div>
+                    </div>
+
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 0;">
+
+                    <div class="detail-group" style="padding-bottom: 20px;">
+                        <h4 style="color: #333; margin-bottom: 15px; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                            Customer's Problem
+                        </h4>
+                        <div style="display: grid; gap: 10px;">
+                            <p style="white-space: pre-wrap;">${booking.notes || 'No problem description provided'}</p>
                         </div>
                     </div>
 
