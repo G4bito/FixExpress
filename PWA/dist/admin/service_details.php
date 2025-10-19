@@ -30,7 +30,7 @@ $row = $result->fetch_assoc();
     /* Variables */
     :root {
       /* Brand Colors */
-      --primary-color: #f39c12;      /* for buttons and highlights */
+      --primary-color: #f39c12;      /* for buttons and highlight */
       --primary-hover: #e67e22;      /* hover states on buttons */
       
       /* Text Colors */
