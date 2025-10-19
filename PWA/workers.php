@@ -86,12 +86,12 @@ if ($worker) {
     ];
 }
 
-// Fetch bookings
+// Fetch bookings (excluding rejected ones)
 $stmt = $conn->prepare("
     SELECT b.*, s.service_name, s.description, s.icon, s.page_link, s.category
     FROM bookings b
     LEFT JOIN services s ON b.service_id = s.service_id
-    WHERE b.worker_id = ?
+    WHERE b.worker_id = ? AND b.status != 'rejected'
     ORDER BY b.date DESC, b.time DESC
 ");
 $stmt->bind_param("i", $worker_id);

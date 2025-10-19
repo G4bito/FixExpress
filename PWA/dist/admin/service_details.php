@@ -309,7 +309,7 @@ $row = $result->fetch_assoc();
     <h3>Available Professionals</h3>
     <?php
     $service_id = $row['service_id'];
-    $workerQuery = "SELECT * FROM workers WHERE service_id = $service_id";
+    $workerQuery = "SELECT * FROM workers WHERE service_id = $service_id AND (status = 'Approved')";
     $workerResult = $conn->query($workerQuery);
 
     if ($workerResult->num_rows > 0) {

@@ -313,6 +313,32 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
         background: var(--primary-orange);
         border-radius: 4px;
     }
+
+    /* Increase container width */
+    @media (min-width: 1200px) {
+        .container {
+            max-width: 1800px;
+        }
+    }
+
+    /* Ensure buttons stay horizontal */
+    .btn-group-horizontal {
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    /* Ensure table cells have enough width */
+    .table td {
+        min-width: 100px;
+        white-space: nowrap;
+    }
+
+    /* Action buttons column should not wrap */
+    .action-buttons {
+        min-width: 200px;
+        white-space: nowrap;
+    }
 </style>
 </head>
 <body>
@@ -434,26 +460,28 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                                         <?= htmlspecialchars($row['status']) ?>
                                     </span>
                                 </td>
-                                <td>
-                                    <button class="btn btn-table-action btn-edit"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editBookingModal"
-                                        data-id="<?= $row['booking_id'] ?>"
-                                        data-fullname="<?= htmlspecialchars($row['fullname']) ?>"
-                                        data-contact="<?= htmlspecialchars($row['contact']) ?>"
-                                        data-email="<?= htmlspecialchars($row['email']) ?>"
-                                        data-address="<?= htmlspecialchars($row['address']) ?>"
-                                        data-date="<?= htmlspecialchars($row['date']) ?>"
-                                        data-time="<?= htmlspecialchars($row['time']) ?>"
-                                        data-status="<?= htmlspecialchars($row['status']) ?>">
-                                        Edit
-                                    </button>
-                                    <button class="btn btn-table-action btn-delete"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteBookingModal"
-                                        data-id="<?= $row['booking_id'] ?>">
-                                        Delete
-                                    </button>
+                                <td class="action-buttons">
+                                    <div class="btn-group-horizontal">
+                                        <button class="btn btn-table-action btn-edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editBookingModal"
+                                            data-id="<?= $row['booking_id'] ?>"
+                                            data-fullname="<?= htmlspecialchars($row['fullname']) ?>"
+                                            data-contact="<?= htmlspecialchars($row['contact']) ?>"
+                                            data-email="<?= htmlspecialchars($row['email']) ?>"
+                                            data-address="<?= htmlspecialchars($row['address']) ?>"
+                                            data-date="<?= htmlspecialchars($row['date']) ?>"
+                                            data-time="<?= htmlspecialchars($row['time']) ?>"
+                                            data-status="<?= htmlspecialchars($row['status']) ?>">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-table-action btn-delete"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteBookingModal"
+                                            data-id="<?= $row['booking_id'] ?>">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -491,14 +519,25 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                                 <td><?= htmlspecialchars($user['username']) ?></td>
                                 <td><?= htmlspecialchars($user['email']) ?></td>
                                 <td><?= htmlspecialchars($user['password']) ?></td>
-                                <td>
-
-                                    <button class="btn btn-table-action btn-delete"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteUserModal"
-                                        data-id="<?= $user['user_id'] ?>">
-                                        Delete
-                                    </button>
+                                <td class="action-buttons">
+                                    <div class="btn-group-horizontal">
+                                        <button class="btn btn-table-action btn-edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editUserModal"
+                                            data-id="<?= $user['user_id'] ?>"
+                                            data-firstname="<?= htmlspecialchars($user['first_name']) ?>"
+                                            data-lastname="<?= htmlspecialchars($user['last_name']) ?>"
+                                            data-email="<?= htmlspecialchars($user['email']) ?>"
+                                            data-username="<?= htmlspecialchars($user['username']) ?>">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-table-action btn-delete"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteUserModal"
+                                            data-id="<?= $user['user_id'] ?>">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -554,13 +593,29 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                                         <?= htmlspecialchars($worker['status'] ?? 'Pending') ?>
                                     </span>
                                 </td>
-                                <td>
-                                    <?php if (($worker['status'] ?? 'Pending') == 'Pending'): ?>
-                                            <a href="approve_worker.php?id=<?= $worker['worker_id'] ?>" class="btn btn-success btn-sm">Approve</a>
-                                            <a href="reject_worker.php?id=<?= $worker['worker_id'] ?>" class="btn btn-danger btn-sm">Reject</a>
-                                        <?php else: ?>
-                                        <button class="btn btn-table-action btn-secondary" disabled>No Actions</button>
-                                    <?php endif; ?>
+                                <td class="action-buttons">
+                                    <div class="btn-group-horizontal">
+                                        <button class="btn btn-table-action btn-edit"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editWorkerModal"
+                                            data-id="<?= $worker['worker_id'] ?>"
+                                            data-firstname="<?= htmlspecialchars($worker['first_name']) ?>"
+                                            data-lastname="<?= htmlspecialchars($worker['last_name']) ?>"
+                                            data-contact="<?= htmlspecialchars($worker['contact']) ?>"
+                                            data-email="<?= htmlspecialchars($worker['email']) ?>"
+                                            data-address="<?= htmlspecialchars($worker['address']) ?>"
+                                            data-service-id="<?= $worker['service_id'] ?>"
+                                            data-experience="<?= htmlspecialchars($worker['experience']) ?>"
+                                            data-status="<?= htmlspecialchars($worker['status'] ?? 'Pending') ?>">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-table-action btn-delete"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteWorkerModal"
+                                            data-id="<?= $worker['worker_id'] ?>">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -573,7 +628,325 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
     </div>
 </div>
 
+<!-- Edit Booking Modal -->
+<div class="modal fade" id="editBookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editBookingForm" action="update_booking.php" method="POST">
+                    <input type="hidden" name="booking_id" id="editBookingID">
+
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" name="fullname" id="editBookingFullName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contact</label>
+                        <input type="text" class="form-control" name="contact" id="editBookingContact" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" id="editBookingEmail" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" name="address" id="editBookingAddress" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" name="date" id="editBookingDate" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Time</label>
+                        <input type="time" class="form-control" name="time" id="editBookingTime" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Service</label>
+                        <select class="form-select" name="service_id" id="editBookingService" required>
+                            <?php
+                            $services = $conn->query("SELECT * FROM services ORDER BY service_name");
+                            while($service = $services->fetch_assoc()) {
+                                echo "<option value='{$service['service_id']}'>{$service['service_name']}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status" id="editBookingStatus" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Booking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm" action="update_user.php" method="POST">
+                    <input type="hidden" name="user_id" id="editUserID">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" name="first_name" id="editUserFirstName" maxlength="100">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" name="last_name" id="editUserLastName" maxlength="100">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" name="username" id="editUserUsername" maxlength="100">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" id="editUserEmail" required maxlength="100">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">New Password (leave blank to keep current)</label>
+                        <input type="password" class="form-control" name="password" id="editUserPassword" maxlength="100">
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Worker Modal -->
+<div class="modal fade" id="editWorkerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Worker</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editWorkerForm" action="update_worker.php" method="POST">
+                    <input type="hidden" name="worker_id" id="editWorkerID">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" name="first_name" id="editWorkerFirstName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" name="last_name" id="editWorkerLastName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Contact</label>
+                        <input type="text" class="form-control" name="contact" id="editWorkerContact" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" id="editWorkerEmail" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" name="address" id="editWorkerAddress" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Service</label>
+                        <select class="form-select" name="service_id" id="editWorkerService" required>
+                            <?php
+                            $services = $conn->query("SELECT * FROM services ORDER BY service_name");
+                            while($service = $services->fetch_assoc()) {
+                                echo "<option value='{$service['service_id']}'>{$service['service_name']}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Experience</label>
+                        <input type="text" class="form-control" name="experience" id="editWorkerExperience" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status" id="editWorkerStatus" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Worker</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize edit booking modal
+    const editBookingModal = document.getElementById('editBookingModal');
+    if (editBookingModal) {
+        editBookingModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const bookingId = button.getAttribute('data-id');
+            const fullname = button.getAttribute('data-fullname');
+            const contact = button.getAttribute('data-contact');
+            const email = button.getAttribute('data-email');
+            const address = button.getAttribute('data-address');
+            const date = button.getAttribute('data-date');
+            const time = button.getAttribute('data-time');
+            const status = button.getAttribute('data-status');
+            const serviceId = button.getAttribute('data-service-id');
+            
+            const modalForm = this.querySelector('#editBookingForm');
+            modalForm.querySelector('#editBookingID').value = bookingId;
+            modalForm.querySelector('#editBookingFullName').value = fullname || '';
+            modalForm.querySelector('#editBookingContact').value = contact || '';
+            modalForm.querySelector('#editBookingEmail').value = email || '';
+            modalForm.querySelector('#editBookingAddress').value = address || '';
+            modalForm.querySelector('#editBookingDate').value = date || '';
+            modalForm.querySelector('#editBookingTime').value = time || '';
+            modalForm.querySelector('#editBookingStatus').value = status || 'Pending';
+            if (serviceId) modalForm.querySelector('#editBookingService').value = serviceId;
+        });
+    }
+
+    // Initialize edit user modal
+    const editUserModal = document.getElementById('editUserModal');
+    if (editUserModal) {
+        editUserModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const userId = button.getAttribute('data-id');
+            const firstName = button.getAttribute('data-firstname');
+            const lastName = button.getAttribute('data-lastname');
+            const email = button.getAttribute('data-email');
+            const username = button.getAttribute('data-username');
+            
+            const modalForm = this.querySelector('#editUserForm');
+            modalForm.querySelector('#editUserID').value = userId;
+            modalForm.querySelector('#editUserFirstName').value = firstName || '';
+            modalForm.querySelector('#editUserLastName').value = lastName || '';
+            modalForm.querySelector('#editUserEmail').value = email || '';
+            modalForm.querySelector('#editUserUsername').value = username || '';
+            modalForm.querySelector('#editUserPassword').value = '';
+        });
+    }
+
+    // Initialize edit worker modal
+    const editWorkerModal = document.getElementById('editWorkerModal');
+    if (editWorkerModal) {
+        editWorkerModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const workerId = button.getAttribute('data-id');
+            const firstName = button.getAttribute('data-firstname');
+            const lastName = button.getAttribute('data-lastname');
+            const contact = button.getAttribute('data-contact');
+            const email = button.getAttribute('data-email');
+            const address = button.getAttribute('data-address');
+            const serviceId = button.getAttribute('data-service-id');
+            const experience = button.getAttribute('data-experience');
+            const status = button.getAttribute('data-status');
+            
+            const modalForm = this.querySelector('#editWorkerForm');
+            modalForm.querySelector('#editWorkerID').value = workerId;
+            modalForm.querySelector('#editWorkerFirstName').value = firstName || '';
+            modalForm.querySelector('#editWorkerLastName').value = lastName || '';
+            modalForm.querySelector('#editWorkerContact').value = contact || '';
+            modalForm.querySelector('#editWorkerEmail').value = email || '';
+            modalForm.querySelector('#editWorkerAddress').value = address || '';
+            if (serviceId) modalForm.querySelector('#editWorkerService').value = serviceId;
+            modalForm.querySelector('#editWorkerExperience').value = experience || '';
+            modalForm.querySelector('#editWorkerStatus').value = status || 'Pending';
+        });
+    }
+});
+</script>
+
+<script>
+// Initialize edit user modal
+document.addEventListener('DOMContentLoaded', function() {
+    const editUserModal = document.getElementById('editUserModal');
+    if (editUserModal) {
+        editUserModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const userId = button.getAttribute('data-id');
+            const firstName = button.getAttribute('data-firstname');
+            const lastName = button.getAttribute('data-lastname');
+            const email = button.getAttribute('data-email');
+            const username = button.getAttribute('data-username');
+            
+            const modalForm = this.querySelector('#editUserForm');
+            modalForm.querySelector('#editUserID').value = userId;
+            modalForm.querySelector('#editUserFirstName').value = firstName || '';
+            modalForm.querySelector('#editUserLastName').value = lastName || '';
+            modalForm.querySelector('#editUserEmail').value = email || '';
+            modalForm.querySelector('#editUserUsername').value = username || '';
+            modalForm.querySelector('#editUserPassword').value = '';
+        });
+    }
+});
+
+// Initialize edit worker modal
+document.addEventListener('DOMContentLoaded', function() {
+    const editWorkerModal = document.getElementById('editWorkerModal');
+    if (editWorkerModal) {
+        editWorkerModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const workerId = button.getAttribute('data-id');
+            const status = button.getAttribute('data-status');
+            
+            const modalForm = this.querySelector('#editWorkerForm');
+            const workerIdInput = modalForm.querySelector('#editWorkerID');
+            const statusSelect = modalForm.querySelector('#editWorkerStatus');
+            
+            workerIdInput.value = workerId;
+            statusSelect.value = status;
+        });
+    }
+});
+</script>
 <script>
 function viewUser(userId) {
     // You can implement a modal or redirect to a detailed view page
