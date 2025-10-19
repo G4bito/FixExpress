@@ -30,7 +30,7 @@ $row = $result->fetch_assoc();
     /* Variables */
     :root {
       /* Brand Colors */
-      --primary-color: #f39c12;      /* for buttons and highlight */
+      --primary-color: #f39c12;      /* for buttons and highlights */
       --primary-hover: #e67e22;      /* hover states on buttons */
       
       /* Text Colors */
@@ -438,8 +438,8 @@ $row = $result->fetch_assoc();
         </div>
 
         <div class="form-group" style="margin-bottom: 30px;">
-          <label>Please Specify Your Problem</label>
-          <textarea name="notes" placeholder="Describe your problem in detail..." required></textarea>
+          <label>Additional Notes (Optional)</label>
+          <textarea name="notes" placeholder="Add details about your request..."></textarea>
         </div>
 
         <div style="margin-top: -10px; text-align: center;">
