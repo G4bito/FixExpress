@@ -1,5 +1,5 @@
 <?php
-include 'db_connection.php';
+include '../database/server.php';
 if (!isset($_SESSION['worker_id'])) {
     header("Location: login.php");
     exit();

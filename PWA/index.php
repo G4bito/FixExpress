@@ -94,10 +94,6 @@
         <div class="ready-to-get-fix">
             <h1>Ready to Get Fix?</h1>
             <p>Join thousands of satisfied customers who trust FixExpress for all their repair needs. Our network of professionals is ready to help you today.</p>
-            <div class="cta-buttons">
-                <a href="#" class="btn btn-primary">Book a Service Now</a>
-                <a href="#" class="btn btn-secondary">Become a Service Pro</a>
-            </div>
         </div>
     </section>
 
@@ -299,7 +295,7 @@
 
   <!-- View All Ratings Button -->
   <div class="tech-footer">
-    <a href="all-ratings.php" class="view-all-btn">View All Ratings</a>
+    <a href="./dist/admin/all-professionals.php" class="view-all-btn">View All Professionals</a>
   </div>
 </section>
 

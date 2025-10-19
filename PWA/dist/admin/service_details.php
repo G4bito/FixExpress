@@ -341,7 +341,8 @@ $row = $result->fetch_assoc();
 
       <form id="bookingForm" method="POST" action="submit_booking.php">
         <input type="hidden" name="worker_id" id="workerId">
-
+        <input type="hidden" name="service_id" value="<?php echo $service_id; ?>">
+        
         <div class="form-group">
           <label>Full Name</label>
         <input type="text" name="fullname" placeholder="Enter your full name" required pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" title="Please enter a valid full name (e.g., Charles D. Gervacio)">
