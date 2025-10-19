@@ -86,12 +86,12 @@ if ($worker) {
     ];
 }
 
-// Fetch bookings
+// Fetch bookings (excluding rejected ones)
 $stmt = $conn->prepare("
     SELECT b.*, s.service_name, s.description, s.icon, s.page_link, s.category
     FROM bookings b
     LEFT JOIN services s ON b.service_id = s.service_id
-    WHERE b.worker_id = ?
+    WHERE b.worker_id = ? AND b.status != 'rejected'
     ORDER BY b.date DESC, b.time DESC
 ");
 $stmt->bind_param("i", $worker_id);
@@ -101,10 +101,10 @@ $bookings = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Count bookings by status
-$stats = ['pending'=>0,'confirmed'=>0,'completed'=>0];
+$stats = ['pending'=>0,'approved'=>0,'completed'=>0];
 foreach ($bookings as &$b) {
     $status = strtolower($b['status'] ?? 'pending');
-    if ($status === 'approved') $status = 'confirmed';
+    if ($status === 'approved') $status = 'approved';
     $b['status'] = $status;
     if (isset($stats[$status])) $stats[$status]++;
     $b['fullname'] = $b['fullname'] ?? 'Unknown';
@@ -774,8 +774,8 @@ body {
             <div class="stat-label">Awaiting Response</div>
         </div>
         <div class="stat-card">
-            <h3>Confirmed</h3>
-            <div class="stat-value"><?php echo $stats['confirmed']; ?></div>
+            <h3>Approved</h3>
+            <div class="stat-value"><?php echo $stats['approved']; ?></div>
             <div class="stat-label">Upcoming Jobs</div>
         </div>
         <div class="stat-card">
@@ -788,6 +788,7 @@ body {
             <div class="stat-value">4.9⭐</div>
             <div class="stat-label">Average Rating</div>
         </div>
+        
     </div>
 
     <div class="bookings-section">
@@ -796,17 +797,18 @@ body {
             <div class="filter-tabs">
                 <button class="filter-tab active" onclick="filterBookings('all', event)">All</button>
                 <button class="filter-tab" onclick="filterBookings('pending', event)">Pending</button>
-                <button class="filter-tab" onclick="filterBookings('confirmed', event)">Confirmed</button>
+                <button class="filter-tab" onclick="filterBookings('Approved', event)">Approved</button>
                 <button class="filter-tab" onclick="filterBookings('completed', event)">Completed</button>
+                <button class="filter-tab" onclick="filterBookings('cancelled', event)">Cancelled</button>
             </div>
         </div>
 
         <div class="bookings-grid" id="bookingsGrid">
             <?php foreach($bookings as $booking): ?>
-            <div class="booking-card" data-status="<?php echo htmlspecialchars($booking['status']); ?>">
+            <div class="booking-card" data-status="<?php echo htmlspecialchars($booking['status']); ?>" data-booking-id="<?php echo (int)$booking['booking_id']; ?>">
                 <div class="booking-status-indicator status-<?php echo htmlspecialchars($booking['status']); ?>">
                     <?php 
-                        $icons = ['pending'=>'⏳','confirmed'=>'✓','completed'=>'✔','cancelled'=>'✗'];
+                        $icons = ['pending'=>'⏳','Approved'=>'✓','completed'=>'✔','cancelled'=>'✗'];
                         echo $icons[$booking['status']] ?? '';
                     ?>
                 </div>
@@ -830,7 +832,7 @@ body {
                     <?php if($booking['status'] === 'pending'): ?>
                         <button class="btn-action btn-accept" onclick="acceptBooking(<?php echo (int)$booking['booking_id']; ?>)">Accept</button>
                         <button class="btn-action btn-decline" onclick="declineBooking(<?php echo (int)$booking['booking_id']; ?>)">Decline</button>
-                    <?php elseif($booking['status'] === 'confirmed'): ?>
+                    <?php elseif($booking['status'] === 'approved'): ?>
                         <button class="btn-action btn-complete" onclick="completeBooking(<?php echo (int)$booking['booking_id']; ?>)">Mark Complete</button>
                         <button class="btn-action btn-view" onclick="viewDetails(<?php echo (int)$booking['booking_id']; ?>)">View Details</button>
                     <?php else: ?>
@@ -1006,6 +1008,161 @@ function updateCounter(input, counterId, maxLength) {
 // no page reload 
 document.querySelector('.worker-icon').textContent = document.getElementById('username').value.trim().charAt(0).toUpperCase();
 
+// Booking acceptance function
+function acceptBooking(bookingId) {
+    if (!confirm('Are you sure you want to accept this booking?')) return;
+
+    console.log('Accepting booking:', bookingId);
+    
+    fetch('./dist/admin/accept_booking.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+        },
+        body: new URLSearchParams({
+            'booking_id': bookingId
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.text().then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Error parsing JSON:', text);
+                throw new Error('Invalid JSON response from server');
+            }
+        });
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            alert('Booking accepted successfully!');
+            // Update the UI
+            const bookingCard = document.querySelector(`.booking-card[data-booking-id="${bookingId}"]`);
+            if (bookingCard) {
+                bookingCard.querySelector('.status-badge').textContent = 'Approved';
+                bookingCard.querySelector('.status-badge').className = 'status-badge status-approved-badge';
+                bookingCard.setAttribute('data-status', 'approved');
+                // Refresh the page to update statistics
+                location.reload();
+            }
+        } else {
+            alert('Failed to accept booking: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing your request. Check the browser console for details.');
+    });
+}
+
+// Booking rejection function
+function declineBooking(bookingId) {
+    if (!confirm('Are you sure you want to decline this booking?')) return;
+
+    fetch('./dist/admin/reject_booking.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json'
+        },
+        body: new URLSearchParams({
+            'booking_id': bookingId
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.text().then(text => {
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                console.error('Error parsing JSON:', text);
+                throw new Error('Invalid JSON response from server');
+            }
+        });
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            alert('Booking declined successfully!');
+            // Update the UI
+            const bookingCard = document.querySelector(`.booking-card[data-booking-id="${bookingId}"]`);
+            if (bookingCard) {
+                bookingCard.querySelector('.status-badge').textContent = 'Cancelled';
+                bookingCard.querySelector('.status-badge').className = 'status-badge status-cancelled-badge';
+                bookingCard.setAttribute('data-status', 'cancelled');
+                // Refresh the page to update statistics
+                location.reload();
+            }
+        } else {
+            alert('Failed to decline booking: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing your request. Check the browser console for details.');
+    });
+}
+
+// Filter bookings function
+function filterBookings(status, event) {
+    // Update active tab
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    filterTabs.forEach(tab => tab.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Get all booking cards
+    const bookingCards = document.querySelectorAll('.booking-card');
+    let visibleCount = 0;
+
+    // Show/hide cards based on status
+    bookingCards.forEach(card => {
+        const cardStatus = card.getAttribute('data-status').toLowerCase();
+        if (status === 'all' || cardStatus === status.toLowerCase()) {
+            card.style.display = 'grid';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Show/hide empty state message
+    const emptyState = document.getElementById('emptyState');
+    if (visibleCount === 0) {
+        emptyState.style.display = 'block';
+    } else {
+        emptyState.style.display = 'none';
+    }
+}
+
+// Booking completion function
+function completeBooking(bookingId) {
+    if (!confirm('Are you sure you want to mark this booking as completed?')) return;
+
+    fetch('./dist/admin/complete_booking.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'booking_id=' + bookingId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Booking marked as completed!');
+            // Refresh the page to update statistics
+            location.reload();
+        } else {
+            alert('Failed to complete booking: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing your request.');
+    });
+}
 </script>
 </body>
 </html>

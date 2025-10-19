@@ -309,7 +309,7 @@ $row = $result->fetch_assoc();
     <h3>Available Professionals</h3>
     <?php
     $service_id = $row['service_id'];
-    $workerQuery = "SELECT * FROM workers WHERE service_id = $service_id";
+    $workerQuery = "SELECT * FROM workers WHERE service_id = $service_id AND (status = 'Approved')";
     $workerResult = $conn->query($workerQuery);
 
     if ($workerResult->num_rows > 0) {
@@ -341,8 +341,7 @@ $row = $result->fetch_assoc();
 
       <form id="bookingForm" method="POST" action="submit_booking.php">
         <input type="hidden" name="worker_id" id="workerId">
-        <input type="hidden" name="service_id" value="<?php echo $service_id; ?>">
-        
+
         <div class="form-group">
           <label>Full Name</label>
         <input type="text" name="fullname" placeholder="Enter your full name" required pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" title="Please enter a valid full name (e.g., Charles D. Gervacio)">

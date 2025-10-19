@@ -4,7 +4,7 @@ include '../database/server.php';
 include 'includes/admin_auth.php';
 
 
-ddddddddddddddddddddd
+
 
 $result = $conn->query("SELECT * FROM bookings ORDER BY booking_id DESC");
 ?>
