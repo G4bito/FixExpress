@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Optional: Make sure the booking belongs to this worker
-    $stmt = $connect->prepare("SELECT worker_id FROM bookings WHERE booking_id = ?");
+    $stmt = $conn->prepare("SELECT worker_id FROM bookings WHERE booking_id = ?");
     $stmt->bind_param("i", $booking_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Update booking status
-    $stmt = $connect->prepare("UPDATE bookings SET status = ? WHERE booking_id = ?");
+    $stmt = $conn->prepare("UPDATE bookings SET status = ? WHERE booking_id = ?");
     $stmt->bind_param("si", $status, $booking_id);
     if($stmt->execute()){
         echo 'success';

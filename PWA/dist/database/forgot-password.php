@@ -10,14 +10,14 @@ if (isset($_POST['send_code'])) {
 
     // Check if email exists
     $query = "SELECT * FROM users WHERE email='$email' LIMIT 1";
-    $result = mysqli_query($connect, $query);
+    $result = mysqli_query($conn, $query);
 
     if (mysqli_num_rows($result) > 0) {
         $otp = rand(100000, 999999); // 6-digit code
         $expires = date("Y-m-d H:i:s", strtotime("+15 minutes"));
 
         // Store OTP & expiry
-        mysqli_query($connect, "UPDATE users SET reset_code='$otp', reset_expires='$expires' WHERE email='$email'");
+        mysqli_query($conn, "UPDATE users SET reset_code='$otp', reset_expires='$expires' WHERE email='$email'");
 
         // Send email
         $mail = new PHPMailer(true); // need ni may phpmailer animal, manbantay ak nid youtube

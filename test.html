@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Strict Email Test</title>
+</head>
+<body>
+<form id="bookingForm" novalidate>
+  <label>Email:</label><br>
+  <input type="text" id="email" placeholder="you@example.com" required>
+  <small id="emailError" style="color:red;display:none;"></small><br><br>
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+const form = document.getElementById("bookingForm");
+const emailInput = document.getElementById("email");
+const emailError = document.getElementById("emailError");
+
+// full regex: at least one letter/number before @, domain, real TLD (.com, .ph, etc.)
+const strictEmail = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+form.addEventListener("submit", function(e){
+  const email = emailInput.value.trim();
+
+  // test: must match pattern, must have at least 1 dot after @, and last part 2+ letters
+  const match = strictEmail.test(email);
+  const afterAt = email.split("@")[1] || "";
+  const parts = afterAt.split(".");
+  const hasDot = parts.length > 1;
+  const tld = parts.pop() || "";
+  const goodTld = /^[A-Za-z]{2,}$/.test(tld);
+
+  if (!match || !hasDot || !goodTld) {
+    e.preventDefault();
+    emailError.textContent = "Invalid email (must include domain and extension, e.g., you@example.com)";
+    emailError.style.display = "block";
+    emailInput.style.borderColor = "red";
+  } else {
+    emailError.style.display = "none";
+    emailInput.style.borderColor = "";
+    alert("Valid email submitted: " + email);
+  }
+});
+</script>
+</body>
+</html>
