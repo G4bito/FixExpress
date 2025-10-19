@@ -151,6 +151,41 @@ h4::after {
         align-items: center;
       }
     }
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(145deg, #ffb347, #ff7b00);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .home-btn:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(145deg, #ffcc66, #ff9a00);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .home-btn:active {
+      transform: scale(0.97);
+    }
+
+    .home-icon {
+      stroke: #fff;
+      transition: stroke 0.2s ease;
+    }
+
+    .home-btn:hover .home-icon {
+      stroke: #fff5d0;
+    }
+
   </style>
 </head>
 
@@ -164,8 +199,13 @@ h4::after {
             <h5 class="mb-0 font-medium"></h5>
           </div>
           <ul class="breadcrumb">
-            <button onclick="window.location='index.php'" class="breadcrumb-item">Home</a></button>
-            <li class="breadcrumb-item" aria-current="page">Services</li>
+           <button onclick="window.location='../../index.php'" class="home-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                viewBox="0 0 24 24" class="home-icon">
+                <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V9.5z"/>
+              </svg>
+              <span>Home</span>
+            </button>
           </ul>
         </div>
       </div>
