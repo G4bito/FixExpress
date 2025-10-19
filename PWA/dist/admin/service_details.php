@@ -25,6 +25,7 @@ $row = $result->fetch_assoc();
   <meta charset="utf-8" />
   <title><?php echo $row['service_name']; ?> | FixExpress</title>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/fonts/fontawesome.css" />
   <style>
   body {
     font-family: 'Open Sans', sans-serif;
@@ -38,6 +39,46 @@ $row = $result->fetch_assoc();
     align-items: center;
   }
 
+  /* Back Button */
+.back-btn {
+  position: fixed;
+  top: 25px;
+  left: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9em;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.back-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+  transition: transform 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.back-btn:hover svg {
+  transform: translateX(-3px);
+}
+
+
   .service-container {
     max-width: 950px;
     width: 90%;
@@ -50,252 +91,270 @@ $row = $result->fetch_assoc();
     animation: fadeIn 0.5s ease-in-out;
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+    /* Typography */
+    h2 {
+      font-size: 28px;
+      color: var(--text-dark);
+      margin-bottom: var(--spacing-xs);
+    }
 
-  .service-icon {
-    font-size: 70px;
-    color: #f39c12;
-    margin-bottom: 15px;
-  }
+    h3 {
+      color: #a54e07;
+      font-size: 20px;
+      margin-bottom: var(--spacing-xl);
+      text-align: left;
+    }
 
-  h2 {
-    font-size: 30px;
-    color: #2c2c2c;
-    margin-bottom: 8px;
-  }
+    p.description {
+      color: var(--text-medium);
+      font-size: 16px;
+      margin-bottom: var(--spacing-xxl);
+    }
 
-  p.description {
-    color: #555;
-    font-size: 16px;
-    margin-bottom: 30px;
-    line-height: 1.6;
-  }
+    /* Service Icon */
+    .service-icon {
+      font-size: 70px;
+      color: var(--primary-color);
+      margin-bottom: var(--spacing-md);
+    }
 
-  hr {
-    border: none;
-    border-top: 1px solid #eee;
-    margin: 30px 0;
-  }
+    /* Divider */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border-light);
+      margin: var(--spacing-xxl) 0;
+    }
 
-  h3 {
-    color: #a54e07;
-    font-size: 22px;
-    margin-bottom: 25px;
-    text-align: left;
-  }
+    /* Worker Cards */
+    .workers-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 22px;
+    }
 
-  .workers-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 22px;
-  }
+    .worker-card {
+      background: var(--bg-light);
+      border: 1px solid var(--border-warm);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: 0 4px 10px var(--shadow-light);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      text-align: left;
+    }
 
-  .worker-card {
-    background: #fffdfa;
-    border: 1px solid #f0e0c0;
-    border-radius: 15px;
-    padding: 22px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: all 0.25s ease;
-  }
+    .worker-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 10px 25px var(--shadow-light);
+      background-color: #fff3e0;
+    }
 
-  .worker-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    background-color: #fff3e0;
-  }
+    .worker-card h4 {
+      font-size: 18px;
+      color: var(--primary-hover);
+      margin-bottom: var(--spacing-xs);
+    }
 
-  .worker-card h4 {
-    font-size: 18px;
-    color: #e67e22;
-    margin-bottom: 8px;
-  }
+    .worker-card p {
+      font-size: 14px;
+      color: var(--text-medium);
+      margin: 4px 0;
+    }
 
-  .worker-card p {
-    font-size: 14px;
-    color: #444;
-    margin: 4px 0;
-  }
+    .rating {
+      color: #ffb400;
+      font-size: 14px;
+    }
 
-  .rating {
-    color: #ffb400;
-    font-weight: 600;
-  }
+    /* Buttons */
+    .btn-book {
+      display: inline-block;
+      margin-top: var(--spacing-sm);
+      background: var(--primary-color);
+      color: white;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--border-radius-sm);
+      text-decoration: none;
+      transition: background 0.3s;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
 
-  .btn-book {
-    display: inline-block;
-    margin-top: 12px;
-    background: #f39c12;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: background 0.3s;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-  }
+    .btn-book:hover {
+      background: var(--primary-hover);
+    }
 
-  .btn-book:hover {
-    background: #e67e22;
-  }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
 
-  /* Modal */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.6);
-    justify-content: center;
-    align-items: center;
-  }
+    .modal-content {
+      background: #fff;
+      padding: 30px 35px;
+      border-radius: var(--border-radius-xl);
+      width: 550px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      position: relative;
+      animation: fadeInUp 0.3s ease;
+      margin: var(--spacing-lg);
+      box-sizing: border-box;
+    }
 
-  .modal-content {
-    background: #fff;
-    padding: 35px 40px;
-    border-radius: 15px;
-    width: 550px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-    position: relative;
-    animation: fadeInUp 0.3s ease;
-  }
+    .modal-content h3 {
+      margin-bottom: 2px;
+      text-align: center;
+      color: var(--primary-color);
+    }
 
-  @keyframes fadeInUp {
-    from { transform: translateY(40px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+    .modal-subtitle {
+      text-align: center;
+      color: var(--text-medium);
+      font-size: 14px;
+      margin-bottom: var(--spacing-md);
+    }
 
-  .close-btn {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 26px;
-    cursor: pointer;
-    color: #666;
-  }
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 26px;
+      cursor: pointer;
+      color: var(--text-light);
+    }
 
-  .close-btn:hover {
-    color: #000;
-  }
+    .close-btn:hover {
+      color: var(--text-dark);
+    }
 
-  .modal-content h3 {
-    margin-bottom: 5px;
-    text-align: center;
-    color: #f39c12;
-  }
+    /* Form Styles */
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+      text-align: left;
+    }
 
-  .modal-subtitle {
-    text-align: center;
-    color: #555;
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
+    .form-group label {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-dark);
+      display: block;
+      margin-bottom: 4px;
+    }
 
-  .form-group {
-    margin-bottom: 18px;
-    text-align: left;
-  }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--border-radius-md);
+      font-size: 14px;
+      resize: none;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
 
-  .form-group label {
-    font-weight: 600;
-    font-size: 14px;
-    color: #333;
-    display: block;
-    margin-bottom: 5px;
-  }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
 
-  .form-group input,
-  .form-group textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 15px;
-    resize: none;
-  }
+    .form-group textarea {
+      height: 80px;
+      line-height: 1.4;
+    }
 
-  .form-group textarea {
-    height: 80px;
-  }
+    .form-group.half {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xl);
+    }
 
-  .form-group.half {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 25px;
-  }
+    .form-group.half div {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
 
-  @media (max-width: 600px) {
-    .form-group.half { grid-template-columns: 1fr; }
-  }
+    .form-group.half input {
+      width: 100%;
+      height: 45px;
+    }
 
-  /* Success Popup */
-  .success-popup {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    justify-content: center;
-    align-items: center;
-  }
+    /* Success Popup */
+    .success-popup {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
 
-  .success-popup .popup-content {
-    background: #fffdfa;
-    padding: 30px 40px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-    animation: fadeInUp 0.3s ease;
-  }
+    .success-popup .popup-content {
+      background: var(--bg-light);
+      padding: var(--spacing-xxl) 40px;
+      border-radius: var(--border-radius-xl);
+      text-align: center;
+      box-shadow: 0 8px 25px var(--shadow-medium);
+      animation: fadeInUp 0.3s ease;
+    }
 
-  .success-popup h3 {
-    color: #27ae60;
-    margin-bottom: 10px;
-  }
+    .success-popup h3 {
+      color: var(--success-color);
+      margin-bottom: var(--spacing-sm);
+    }
 
-  .success-popup button {
-    background: #f39c12;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    margin-top: 15px;
-    cursor: pointer;
-    transition: 0.3s;
-    font-weight: 600;
-  }
+    .success-popup button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-sm) var(--spacing-lg);
+      margin-top: var(--spacing-md);
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: 600;
+    }
 
   .success-popup button:hover {
     background: #e67e22;
   }
-  
   </style>
+
 </head>
 
 <body>
 
-  <!-- Back Button -->
+  <!-- 🔙 Back Button -->
   <a href="/FixExpress/PWA/dist/admin/template01.php" class="back-btn">
-  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-  </svg>
-  Back
-</a>
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+    </svg>
+    Back
+  </a>
 
   <div class="service-container">
     <div class="service-icon"><i class="<?php echo $row['icon']; ?>"></i></div>
     <h2><?php echo $row['service_name']; ?></h2>
     <p class="description"><?php echo $row['description']; ?></p>
-    <hr>
-    <h3>Available Professionals</h3>
 
+    <hr>
+
+    <h3>Available Professionals</h3>
     <?php
     $service_id = $row['service_id'];
     $workerQuery = "SELECT * FROM workers WHERE service_id = $service_id AND (status = 'Approved')";
@@ -330,24 +389,28 @@ $row = $result->fetch_assoc();
 
       <form id="bookingForm" method="POST" action="submit_booking.php">
         <input type="hidden" name="worker_id" id="workerId">
+
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" name="fullname" placeholder="Enter your full name" required>
+        <input type="text" name="fullname" placeholder="Enter your full name" required pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" title="Please enter a valid full name (e.g., Charles D. Gervacio)">
+
         </div>
 
         <div class="form-group">
           <label>Contact Number</label>
-          <input type="text" name="contact" placeholder="e.g. 09123456789" required>
+          <input type="text" name="contact" maxlength="13" placeholder="e.g. 09123456789 or +639123456789" required pattern="^(09\d{9}|\+639\d{9})$" title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
+
         </div>
 
         <div class="form-group">
           <label>Email Address</label>
-          <input type="email" name="email" placeholder="you@example.com" required>
+          <input type="text" id="email" name="email" placeholder="you@example.com" required title="Please enter a valid email ending with .com or .com.ph (e.g., name@example.com or name@example.com.ph)">
         </div>
 
         <div class="form-group">
           <label>Complete Address</label>
-          <textarea name="address" placeholder="House No., Street, Barangay, City, Province, ZIP Code" required></textarea>
+          <textarea name="address" placeholder="House No., Street, Barangay, City, Province, ZIP Code" required pattern="^[A-Za-z0-9\s.,#-]{10,}\s\d{4}$" title="Please enter a complete address with ZIP code (e.g., 123 Rizal St., Brgy. Poblacion, Calasiao, Pangasinan 2418)"></textarea>
+
         </div>
 
         <div class="form-group half">
@@ -361,12 +424,14 @@ $row = $result->fetch_assoc();
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Additional Notes (Optional)</label>
-          <textarea name="notes" placeholder="Add details about your request..."></textarea>
+        <div class="form-group" style="margin-bottom: 30px;">
+          <label>Please Specify Your Problem <span style="color: #ff0000;">*</span></label>
+          <textarea name="notes" placeholder="Please describe your problem in detail..." required></textarea>
         </div>
 
-        <button type="submit" class="btn-book">Confirm Booking</button>
+        <div style="margin-top: -10px; text-align: center;">
+          <button type="submit" class="btn-book" style="padding: 12px 30px; font-size: 16px;">Confirm Booking</button>
+        </div>
       </form>
     </div>
   </div>
@@ -393,6 +458,28 @@ function closeModal() {
 function closeSuccess() {
   document.getElementById('successPopup').style.display = 'none';
 }
+
+document.getElementById('email').addEventListener('input', function(e) {
+  const email = e.target.value;
+  const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.com(\.ph)?$/;
+  
+  if (email && !emailPattern.test(email)) {
+    e.target.setCustomValidity('Please enter a valid email ending with .com or .com.ph');
+  } else {
+    e.target.setCustomValidity('');
+  }
+});
+
+document.getElementById('bookingForm').addEventListener('submit', function(e) {
+  const email = document.getElementById('email').value;
+  const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.com(\.ph)?$/;
+  
+  if (!emailPattern.test(email)) {
+    e.preventDefault();
+    alert('Please enter a valid email ending with .com or .com.ph');
+    return false;
+  }
+});
 
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('success') === '1') {
