@@ -78,6 +78,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Login & Signup</title>
     <link rel="stylesheet" href="./dist/assets/css/login.css">
 </head>
+<style>
+    /* This will handle the auto fill */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        select:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px #2a2a2a inset !important; 
+            -webkit-text-fill-color: #ffffff !important; 
+            caret-color: #ffffff !important;
+            transition: background-color 9999s ease-in-out 0s !important;
+    }
+    .password-group {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #d97f3e;
+        }
+
+</style>
 <body>
     <div id="loginPage" class="login-container">
         <div class="bottom-triangle"></div>
@@ -92,13 +125,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
             
             <form id="loginForm" method="POST" action="">
-                <div class="form-group">
-                    <input type="text" name="username" placeholder=" " required>
-                    <label>Username</label>
-                </div>
+               <div class="form-group">
+                <input type="text" name="username" placeholder=" " required maxlength="100">
+                <label>Username</label>
+            </div>
 
-                <div class="form-group password-group">
-                    <input type="password" name="password" id="password" placeholder=" " required>
+            <div class="form-group password-group">
+                <input type="password" name="password" id="password" placeholder=" " required maxlength="30">
                     <label for="password">Password</label>
 
                     <!-- SVG eye icon -->

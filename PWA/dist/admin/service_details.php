@@ -341,7 +341,6 @@ $row = $result->fetch_assoc();
 
       <form id="bookingForm" method="POST" action="submit_booking.php">
         <input type="hidden" name="worker_id" id="workerId">
-        <input type="hidden" name="service_id" value="<?php echo $service_id; ?>">
 
         <div class="form-group">
           <label>Full Name</label>
