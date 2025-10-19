@@ -25,127 +25,81 @@ $row = $result->fetch_assoc();
   <meta charset="utf-8" />
   <title><?php echo $row['service_name']; ?> | FixExpress</title>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/fonts/fontawesome.css" />
   <style>
-    /* Variables */
-    :root {
-      /* Brand Colors */
-      --primary-color: #f39c12;      /* for buttons and highlights */
-      --primary-hover: #e67e22;      /* hover states on buttons */
-      
-      /* Text Colors */
-      --text-dark: #2c2c2c;          /* Main text color for headings and important content */
-      --text-medium: #555;           /* Secondary text color for paragraphs */
-      --text-light: #666;            /* Lighter text for less important content */
-      
-      /* Background and Border Colors */
-      --bg-light: #fffdfa;           /* Light background for cards and containers */
-      --border-light: #ddd;          /* Standard border color for inputs and dividers */
-      --border-warm: #f0e0c0;        /* Warmer border color for worker cards */
-      
-      /* Shadow Variables */
-      --shadow-light: rgba(0, 0, 0, 0.1);    /* Subtle shadow for cards and containers */
-      --shadow-medium: rgba(0, 0, 0, 0.25);   /* Stronger shadow for modals and popups */
-      
-      /* Status Colors */
-      --success-color: #27ae60;      /* Green color for success messages and confirmations */
-      
-      /* Border Radius Scale */
-      --border-radius-sm: 6px;       /* Small radius for buttons */
-      --border-radius-md: 8px;       /* Medium radius for inputs */
-      --border-radius-lg: 12px;      /* Large radius for cards */
-      --border-radius-xl: 12px;      /* Extra large radius for modals */
-      --border-radius-xxl: 18px;     /* Double extra large radius for main container */
-      
-      /* Spacing Scale */
-      --spacing-xs: 8px;             /* Extra small spacing for tight gaps */
-      --spacing-sm: 12px;            /* Small spacing for buttons and inputs */
-      --spacing-md: 16px;            /* Medium spacing for inner padding */
-      --spacing-lg: 20px;            /* Large spacing for card padding */
-      --spacing-xl: 24px;            /* Extra large spacing for sections */
-      --spacing-xxl: 30px;           /* Double extra large spacing for containers */
-    }
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background: linear-gradient(145deg, #2d1e0b, #a54e07, #ff7b00);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    margin: 0;
+    padding: 0;
+    color: #222;
+    min-height: 100vh;
+  }
 
-    /* Reset & Base Styles */
-    body {
-      font-family: 'Open Sans', sans-serif;
-      background: linear-gradient(145deg, #2d1e0b, #a54e07, #ff7b00);
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: center;
-      margin: 0;
-      padding: 0;
-      color: var(--text-dark);
-      min-height: 100vh;
-    }
+  .service-container {
+    max-width: 950px;
+    margin: 60px auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    padding: 45px;
+    text-align: center;
+  }
 
-    /* Main Container */
-    .service-container {
-      max-width: 950px;
-      margin: 60px auto;
-      background: #fff;
-      border-radius: var(--border-radius-xxl);
-      box-shadow: 0 8px 30px var(--shadow-light);
-      padding: 45px;
-      text-align: center;
-    }
+  .service-icon {
+    font-size: 70px;
+    color: #f39c12;
+    margin-bottom: 15px;
+  }
 
-    /* Typography */
-    h2 {
-      font-size: 28px;
-      color: var(--text-dark);
-      margin-bottom: var(--spacing-xs);
-    }
+  h2 {
+    font-size: 28px;
+    color: #2c2c2c;
+    margin-bottom: 8px;
+  }
 
-    h3 {
-      color: #a54e07;
-      font-size: 20px;
-      margin-bottom: var(--spacing-xl);
-      text-align: left;
-    }
+  p.description {
+    color: #555;
+    font-size: 16px;
+    margin-bottom: 30px;
+  }
 
-    p.description {
-      color: var(--text-medium);
-      font-size: 16px;
-      margin-bottom: var(--spacing-xxl);
-    }
+  hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 30px 0;
+  }
 
-    /* Service Icon */
-    .service-icon {
-      font-size: 70px;
-      color: var(--primary-color);
-      margin-bottom: var(--spacing-md);
-    }
+  h3 {
+    color: #a54e07;
+    font-size: 20px;
+    margin-bottom: 25px;
+    text-align: left;
+  }
 
-    /* Divider */
-    hr {
-      border: none;
-      border-top: 1px solid var(--border-light);
-      margin: var(--spacing-xxl) 0;
-    }
+  .workers-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 22px;
+  }
 
-    /* Worker Cards */
-    .workers-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 22px;
-    }
+  .worker-card {
+    background: #fffdfa;
+    border: 1px solid #f0e0c0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    text-align: left;
+  }
 
-    .worker-card {
-      background: var(--bg-light);
-      border: 1px solid var(--border-warm);
-      border-radius: var(--border-radius-lg);
-      padding: var(--spacing-lg);
-      box-shadow: 0 4px 10px var(--shadow-light);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-      text-align: left;
-    }
-
-    .worker-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 10px 25px var(--shadow-light);
-      background-color: #fff3e0;
-    }
+  .worker-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background-color: #fff3e0;
+  }
 
     .worker-card h4 {
       font-size: 18px;
@@ -153,11 +107,11 @@ $row = $result->fetch_assoc();
       margin-bottom: var(--spacing-xs);
     }
 
-    .worker-card p {
-      font-size: 14px;
-      color: var(--text-medium);
-      margin: 4px 0;
-    }
+  .worker-card p {
+    font-size: 14px;
+    color: #444;
+    margin: 4px 0;
+  }
 
     .rating {
       color: #ffb400;
@@ -179,9 +133,14 @@ $row = $result->fetch_assoc();
       border: none;
     }
 
-    .btn-book:hover {
-      background: var(--primary-hover);
-    }
+  .btn-book:hover {
+    background: #e67e22;
+  }
+
+  .rating {
+    color: #ffb400;
+    font-size: 14px;
+  }
 
     /* Modal */
     .modal {
@@ -274,34 +233,49 @@ $row = $result->fetch_assoc();
       line-height: 1.4;
     }
 
-    .form-group.half {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-xl);
-    }
 
-    .form-group.half div {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xs);
-    }
+.form-group.half {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  column-gap: 25px;            
+  row-gap: 10px;              
+  margin-top: 10px;
+  margin-bottom: 25px;          
+}
 
-    .form-group.half input {
-      width: 100%;
-      height: 45px;
-    }
+.form-group.half div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;                 
+}
 
-    /* Success Popup */
-    .success-popup {
-      display: none;
-      position: fixed;
-      z-index: 2000;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-    }
+.form-group.half input {
+  width: 275px;                    /* Makes input fill the container width */
+  height: 42px;                   /* consistent height */
+  box-sizing: border-box;
+  border: 2px solid #ccc;         /* Border width */
+  border-radius: 8px;             /* Optional: rounded corners */
+}
+
+
+
+@media (max-width: 600px) {
+  .form-group.half {
+    grid-template-columns: 1fr;   
+  }
+}
+
+
+
+  .success-popup {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+  }
 
     .success-popup .popup-content {
       background: var(--bg-light);
@@ -329,45 +303,32 @@ $row = $result->fetch_assoc();
       font-weight: 600;
     }
 
-    .success-popup button:hover {
-      background: var(--primary-hover);
-    }
+  .success-popup button:hover {
+    background: #e67e22;
+  }
 
-    /* Animations */
-    @keyframes fadeInUp {
-      from { transform: translateY(40px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 600px) {
-      .form-group.half {
-        grid-template-columns: 1fr;
-      }
-
-      .modal-content {
-        padding: var(--spacing-lg);
-        margin: var(--spacing-sm);
-      }
-
-      .service-container {
-        margin: var(--spacing-lg);
-        padding: var(--spacing-lg);
-      }
-    }
-  </style>
+ 
+</style>
 
 </head>
 
 <body>
+
+  <!-- 🔙 Back Button -->
+  <a href="/FixExpress/PWA/dist/admin/template01.php" class="back-btn">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+  </svg>
+  Back
+</a>
+
   <div class="service-container">
     <div class="service-icon"><i class="<?php echo $row['icon']; ?>"></i></div>
     <h2><?php echo $row['service_name']; ?></h2>
     <p class="description"><?php echo $row['description']; ?></p>
-
     <hr>
-
     <h3>Available Professionals</h3>
+
     <?php
     $service_id = $row['service_id'];
     $workerQuery = "SELECT * FROM workers WHERE service_id = $service_id AND (status = 'Approved')";
@@ -402,28 +363,25 @@ $row = $result->fetch_assoc();
 
       <form id="bookingForm" method="POST" action="submit_booking.php">
         <input type="hidden" name="worker_id" id="workerId">
-
         <div class="form-group">
           <label>Full Name</label>
-        <input type="text" name="fullname" placeholder="Enter your full name" required pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" title="Please enter a valid full name (e.g., Charles D. Gervacio)">
-
+          <input type="text" name="fullname" placeholder="Enter your full name" required>
         </div>
 
         <div class="form-group">
           <label>Contact Number</label>
-          <input type="text" name="contact" maxlength="13" placeholder="e.g. 09123456789 or +639123456789" required pattern="^(09\d{9}|\+639\d{9})$" title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
+          <input type="text" name="contact" placeholder="e.g. 09123456789 or +639123456789" required pattern="^(09\d{9}|\+639\d{9})$" title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
 
         </div>
 
         <div class="form-group">
           <label>Email Address</label>
-          <input type="text" id="email" name="email" placeholder="you@example.com" required title="Please enter a valid email ending with .com or .com.ph (e.g., name@example.com or name@example.com.ph)">
+          <input type="email" id="email" name="email" placeholder="you@example.com" required pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.com(\.ph)?$" title="Please enter a valid email ending with .com (e.g., you@example.com)">
         </div>
 
         <div class="form-group">
           <label>Complete Address</label>
-          <textarea name="address" placeholder="House No., Street, Barangay, City, Province, ZIP Code" required pattern="^[A-Za-z0-9\s.,#-]{10,}\s\d{4}$" title="Please enter a complete address with ZIP code (e.g., 123 Rizal St., Brgy. Poblacion, Calasiao, Pangasinan 2418)"></textarea>
-
+          <textarea name="address" placeholder="House No., Street, Barangay, City, Province, ZIP Code" required></textarea>
         </div>
 
         <div class="form-group half">
