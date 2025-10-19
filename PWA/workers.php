@@ -850,6 +850,45 @@ body {
     </div>
 </div>
 
+<!-- Decline Booking Modal -->
+<div id="declineModal" class="profile-modal">
+  <div class="profile-modal-content">
+    <span class="close-btn" id="closeDeclineModal">&times;</span>
+    <h2>Decline Booking</h2>
+    <form id="declineForm">
+      <input type="hidden" id="declineBookingId" name="booking_id">
+      <div class="profile-field">
+        <label for="declineReason">Reason for Declining:</label>
+        <textarea 
+          id="declineReason" 
+          name="reason" 
+          required 
+          class="form-control" 
+          style="width: 100%; height: 120px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"
+          placeholder="Please explain why you are declining this booking..."></textarea>
+      </div>
+      <div class="profile-actions">
+        <button type="submit" class="save-btn">Submit</button>
+        <button type="button" class="close-btn-secondary" id="cancelDeclineBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- View Details Modal -->
+<div id="viewDetailsModal" class="profile-modal">
+  <div class="profile-modal-content">
+    <span class="close-btn" id="closeViewDetailsModal">&times;</span>
+    <h2>Booking Details</h2>
+    <div id="bookingDetailsContent" style="margin-top: 20px;">
+      <!-- Content will be populated dynamically -->
+    </div>
+    <div class="profile-actions">
+      <button type="button" class="close-btn-secondary" id="closeViewDetailsBtn">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- Profile Modal -->
 <div id="profileModal" class="profile-modal">
   <div class="profile-modal-content">
@@ -1060,50 +1099,72 @@ function acceptBooking(bookingId) {
 
 // Booking rejection function
 function declineBooking(bookingId) {
-    if (!confirm('Are you sure you want to decline this booking?')) return;
+    const declineModal = document.getElementById('declineModal');
+    const closeDeclineModal = document.getElementById('closeDeclineModal');
+    const cancelDeclineBtn = document.getElementById('cancelDeclineBtn');
+    const declineForm = document.getElementById('declineForm');
+    const declineBookingIdInput = document.getElementById('declineBookingId');
 
-    fetch('./dist/admin/reject_booking.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
-        },
-        body: new URLSearchParams({
-            'booking_id': bookingId
-        })
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.text().then(text => {
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                console.error('Error parsing JSON:', text);
-                throw new Error('Invalid JSON response from server');
-            }
-        });
-    })
-    .then(data => {
-        console.log('Response data:', data);
-        if (data.success) {
-            alert('Booking declined successfully!');
-            // Update the UI
-            const bookingCard = document.querySelector(`.booking-card[data-booking-id="${bookingId}"]`);
-            if (bookingCard) {
-                bookingCard.querySelector('.status-badge').textContent = 'Cancelled';
-                bookingCard.querySelector('.status-badge').className = 'status-badge status-cancelled-badge';
-                bookingCard.setAttribute('data-status', 'cancelled');
-                // Refresh the page to update statistics
-                location.reload();
-            }
-        } else {
-            alert('Failed to decline booking: ' + (data.message || 'Unknown error'));
+    // Set the booking ID in the form
+    declineBookingIdInput.value = bookingId;
+
+    // Show the decline modal
+    declineModal.classList.add('show');
+
+    // Close modal handlers
+    const closeModal = () => {
+        declineModal.classList.remove('show');
+        declineForm.reset();
+    };
+
+    closeDeclineModal.onclick = closeModal;
+    cancelDeclineBtn.onclick = closeModal;
+    declineModal.onclick = (e) => {
+        if (e.target === declineModal) closeModal();
+    };
+
+    // Handle form submission
+    declineForm.onsubmit = (e) => {
+        e.preventDefault();
+        const reason = document.getElementById('declineReason').value.trim();
+        
+        if (!reason) {
+            alert('Please provide a reason for declining the booking.');
+            return;
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while processing your request. Check the browser console for details.');
-    });
+
+        fetch('./dist/admin/reject_booking.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            },
+            body: new URLSearchParams({
+                'booking_id': bookingId,
+                'reason': reason
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Booking declined successfully!');
+                const bookingCard = document.querySelector(`.booking-card[data-booking-id="${bookingId}"]`);
+                if (bookingCard) {
+                    bookingCard.querySelector('.status-badge').textContent = 'Cancelled';
+                    bookingCard.querySelector('.status-badge').className = 'status-badge status-cancelled-badge';
+                    bookingCard.setAttribute('data-status', 'cancelled');
+                }
+                closeModal();
+                location.reload();
+            } else {
+                alert('Failed to decline booking: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while processing your request.');
+        });
+    };
 }
 
 // Filter bookings function
@@ -1161,6 +1222,89 @@ function completeBooking(bookingId) {
     .catch(error => {
         console.error('Error:', error);
         alert('An error occurred while processing your request.');
+    });
+}
+
+function viewDetails(bookingId) {
+    const viewDetailsModal = document.getElementById('viewDetailsModal');
+    const closeViewDetailsModal = document.getElementById('closeViewDetailsModal');
+    const closeViewDetailsBtn = document.getElementById('closeViewDetailsBtn');
+    const bookingDetailsContent = document.getElementById('bookingDetailsContent');
+
+    // Show loading state
+    bookingDetailsContent.innerHTML = '<p style="text-align: center; padding: 20px;">Loading booking details...</p>';
+    viewDetailsModal.classList.add('show');
+
+    // Close modal handlers
+    const closeModal = () => viewDetailsModal.classList.remove('show');
+    closeViewDetailsModal.onclick = closeModal;
+    closeViewDetailsBtn.onclick = closeModal;
+    viewDetailsModal.onclick = (e) => {
+        if (e.target === viewDetailsModal) closeModal();
+    };
+
+    // Fetch booking details
+    fetch('./dist/admin/get_booking_details.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'booking_id=' + bookingId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const booking = data.booking;
+            const statusClass = {
+                'pending': 'warning',
+                'approved': 'info',
+                'completed': 'success',
+                'cancelled': 'danger'
+            }[booking.status.toLowerCase()] || 'secondary';
+
+            let declineReasonHtml = '';
+            if (booking.status.toLowerCase() === 'cancelled' && booking.decline_reason) {
+                declineReasonHtml = `
+                    <div class="detail-group" style="margin-top: 20px; padding: 15px; background: #f8d7da; border-radius: 8px;">
+                        <h4 style="color: #721c24; margin-bottom: 10px;">Reason for Declining:</h4>
+                        <p style="color: #721c24;">${booking.decline_reason}</p>
+                    </div>
+                `;
+            }
+
+            bookingDetailsContent.innerHTML = `
+                <div style="display: grid; gap: 20px;">
+                    <div class="detail-group">
+                        <h4 style="color: #333; margin-bottom: 15px;">Booking Information</h4>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Service:</strong> ${booking.service_name}</p>
+                            <p><strong>Status:</strong> <span class="badge bg-${statusClass}">${booking.status}</span></p>
+                            <p><strong>Date:</strong> ${booking.date}</p>
+                            <p><strong>Time:</strong> ${booking.time}</p>
+                            <p><strong>Price:</strong> ${booking.price || 'Not set'}</p>
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <h4 style="color: #333; margin-bottom: 15px;">Customer Information</h4>
+                        <div style="display: grid; gap: 10px;">
+                            <p><strong>Name:</strong> ${booking.fullname}</p>
+                            <p><strong>Address:</strong> ${booking.address}</p>
+                            <p><strong>Email:</strong> ${booking.email}</p>
+                            <p><strong>Contact:</strong> ${booking.contact}</p>
+                        </div>
+                    </div>
+
+                    ${declineReasonHtml}
+                </div>
+            `;
+        } else {
+            bookingDetailsContent.innerHTML = '<p style="color: #721c24; text-align: center; padding: 20px;">Failed to load booking details.</p>';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        bookingDetailsContent.innerHTML = '<p style="color: #721c24; text-align: center; padding: 20px;">An error occurred while loading the booking details.</p>';
     });
 }
 </script>
