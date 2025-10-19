@@ -96,22 +96,6 @@ if ($result && $result->num_rows > 0) {
       <a href="/FixExpress/PWA/dist/admin/website_ratings.php">Website Ratings</a>
       
     </head>
-session_start();
-include './dist/database/server.php';
-?>
-<!doctype html>
-<html lang="en" data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" dir="ltr" data-pc-theme="light">
-  <head>
-    <title>FixExpress</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="." />
-    <meta name="keywords" content="." />
-    <meta name="author" content="Sniper 2025" />
-    <link rel="stylesheet" href="./dist/assets/css/index.css" /> 
-    
-  </head>
 
   </head>
   <body>
@@ -429,67 +413,6 @@ include './dist/database/server.php';
   </div>
     
   </section>
-  <div class="feedback-showcase" style="display: flex; justify-content: space-between; gap: 20px; margin: 0 auto; max-width: 1200px; padding: 0 20px;">
-    <?php
-    $ratingQuery = "SELECT * FROM website_ratings ORDER BY rating DESC, date_submitted DESC LIMIT 3";
-    $ratingResult = $conn->query($ratingQuery);
-    
-    $positions = ['left', 'center', 'right'];
-    $i = 0;
-    
-    if ($ratingResult && $ratingResult->num_rows > 0) {
-      while ($rating = $ratingResult->fetch_assoc()) {
-        $stars = str_repeat('⭐', $rating['rating']);
-        $position = $positions[$i];
-        echo "
-        <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); margin: 10px; transition: all 0.3s ease;'>
-          <div class='rating-stars' style='margin-bottom: 10px; font-size: 18px;'>{$stars}</div>
-          <p style='font-style: italic; margin-bottom: 15px;'>\"" . htmlspecialchars($rating['comment']) . "\"</p>
-          <div class='feedback-author' style='display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);'>
-            <h4 style='margin: 0 0 5px 0; color: var(--primary-color, #ffffffff);'>" . htmlspecialchars($rating['reviewer_name']) . "</h4>
-            <span style='font-size: 0.9em; opacity: 0.8;'>" . date('F j, Y', strtotime($rating['date_submitted'])) . "</span>
-          </div>
-        </div>";
-        $i++;
-      }
-
-      // Fill remaining bubbles if less than 3 ratings
-      while ($i < 3) {
-        $position = $positions[$i];
-        echo "
-        <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); margin: 10px; transition: all 0.3s ease;'>
-          <p style='font-style: italic; margin-bottom: 15px;'>Be the first to share your experience!</p>
-          <div class='feedback-author' style='display: flex; align-items: center;'>
-            <div>
-              <h4 style='margin: 0; color: var(--primary-color, #ffffffff);'>Your feedback matters</h4>
-              <span style='font-size: 0.9em; opacity: 0.8;'>Rate our service</span>
-            </div>
-          </div>
-        </div>";
-        $i++;
-      }
-    } else {
-      // Show placeholder for all three bubbles if no ratings
-      foreach ($positions as $position) {
-        echo "
-        <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); margin: 10px; transition: all 0.3s ease;'>
-          <p style='font-style: italic; margin-bottom: 15px;'>Be the first to share your experience!</p>
-          <div class='feedback-author' style='display: flex; align-items: center;'>
-            <div>
-              <h4 style='margin: 0; color: var(--primary-color, #ffffffff);'>Your feedback matters</h4>
-              <span style='font-size: 0.9em; opacity: 0.8;'>Rate our service</span>
-            </div>
-          </div>
-        </div>";
-      }
-    }
-    ?>
-  </div>
-
-  <div class="view-ratings-container" style="text-align: center; margin: 30px 0;">
-    <a href="/FixExpress/PWA/dist/admin/website_ratings.php" class="view-all-btn" style="display: inline-block; padding: 12px 30px; background: var(--primary-color, #f39c12); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;">View All Ratings</a>
-  </div>
-</section>
 
   <!-- ======= Footer Section ======= -->
   <footer class="footer">
