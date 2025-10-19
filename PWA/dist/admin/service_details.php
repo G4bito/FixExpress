@@ -27,69 +27,108 @@ $row = $result->fetch_assoc();
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/fonts/fontawesome.css" />
   <style>
-  body {
-    font-family: 'Open Sans', sans-serif;
-    background: linear-gradient(145deg, #2d1e0b, #a54e07, #ff7b00);
-    margin: 0;
-    padding: 0;
-    color: #222;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+    /* Variables */
+    :root {
+      /* Brand Colors */
+      --primary-color: #f39c12;      /* for buttons and highlights */
+      --primary-hover: #e67e22;      /* hover states on buttons */
+      
+      /* Text Colors */
+      --text-dark: #2c2c2c;          /* Main text color for headings and important content */
+      --text-medium: #555;           /* Secondary text color for paragraphs */
+      --text-light: #666;            /* Lighter text for less important content */
+      
+      /* Background and Border Colors */
+      --bg-light: #fffdfa;           /* Light background for cards and containers */
+      --border-light: #ddd;          /* Standard border color for inputs and dividers */
+      --border-warm: #f0e0c0;        /* Warmer border color for worker cards */
+      
+      /* Shadow Variables */
+      --shadow-light: rgba(0, 0, 0, 0.1);    /* Subtle shadow for cards and containers */
+      --shadow-medium: rgba(0, 0, 0, 0.25);   /* Stronger shadow for modals and popups */
+      
+      /* Status Colors */
+      --success-color: #27ae60;      /* Green color for success messages and confirmations */
+      
+      /* Border Radius Scale */
+      --border-radius-sm: 6px;       /* Small radius for buttons */
+      --border-radius-md: 8px;       /* Medium radius for inputs */
+      --border-radius-lg: 12px;      /* Large radius for cards */
+      --border-radius-xl: 12px;      /* Extra large radius for modals */
+      --border-radius-xxl: 18px;     /* Double extra large radius for main container */
+      
+      /* Spacing Scale */
+      --spacing-xs: 8px;             /* Extra small spacing for tight gaps */
+      --spacing-sm: 12px;            /* Small spacing for buttons and inputs */
+      --spacing-md: 16px;            /* Medium spacing for inner padding */
+      --spacing-lg: 20px;            /* Large spacing for card padding */
+      --spacing-xl: 24px;            /* Extra large spacing for sections */
+      --spacing-xxl: 30px;           /* Double extra large spacing for containers */
+    }
 
-  /* Back Button */
-.back-btn {
-  position: fixed;
-  top: 25px;
-  left: 30px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9em;
-  cursor: pointer;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
-}
+    /* Back Button */
+    .back-btn {
+      position: fixed;
+      top: 25px;
+      left: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9em;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
 
-.back-btn svg {
-  width: 20px;
-  height: 20px;
-  fill: white;
-  transition: transform 0.3s ease;
-}
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      transition: transform 0.3s ease;
+    }
 
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-}
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
 
-.back-btn:hover svg {
-  transform: translateX(-3px);
-}
+    .back-btn:hover svg {
+      transform: translateX(-3px);
+    }
 
+    /* Reset & Base Styles */
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: linear-gradient(145deg, #2d1e0b, #a54e07, #ff7b00);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      padding: 0;
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
 
-  .service-container {
-    max-width: 950px;
-    width: 90%;
-    margin: 100px auto 60px auto;
-    background: #fffdfa;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-    padding: 50px;
-    text-align: center;
-    animation: fadeIn 0.5s ease-in-out;
-  }
+    /* Main Container */
+    .service-container {
+      max-width: 950px;
+      margin: 60px auto;
+      background: #fff;
+      border-radius: var(--border-radius-xxl);
+      box-shadow: 0 8px 30px var(--shadow-light);
+      padding: 45px;
+      text-align: center;
+    }
 
     /* Typography */
     h2 {
@@ -330,16 +369,38 @@ $row = $result->fetch_assoc();
       font-weight: 600;
     }
 
-  .success-popup button:hover {
-    background: #e67e22;
-  }
+    .success-popup button:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 600px) {
+      .form-group.half {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        padding: var(--spacing-lg);
+        margin: var(--spacing-sm);
+      }
+
+      .service-container {
+        margin: var(--spacing-lg);
+        padding: var(--spacing-lg);
+      }
+    }
   </style>
 
 </head>
 
 <body>
-
-  <!-- 🔙 Back Button -->
+  <!-- Back Button -->
   <a href="/FixExpress/PWA/dist/admin/template01.php" class="back-btn">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
