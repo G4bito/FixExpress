@@ -97,10 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <label>Username</label>
                 </div>
 
-                <div class="form-group">
-                    <input type="password" name="password" placeholder=" " required>
-                    <label>Password</label>
+                <div class="form-group password-group">
+                    <input type="password" name="password" id="password" placeholder=" " required>
+                    <label for="password">Password</label>
+
+                    <!-- SVG eye icon -->
+                    <svg class="toggle-password" id="togglePassword" xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" 
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <circle cx="12" cy="12" r="3" />
+                    </svg>
                 </div>
+
 
                 <div class="forgot-password">
                     <a href="forgot-password.php">Forgot Password?</a>
@@ -116,4 +125,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 </body>
+<script>
+const passwordInput = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
+
+let visible = false;
+
+togglePassword.addEventListener("click", () => {
+    visible = !visible;
+    passwordInput.type = visible ? "text" : "password";
+
+    // this is for the eye icon change
+    togglePassword.innerHTML = visible
+        ? `<path stroke-linecap="round" stroke-linejoin="round" 
+                 d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 
+                 a11.05 11.05 0 012.944-4.78M9.88 9.88a3 3 0 104.24 4.24M6.1 6.1l11.8 11.8" />`
+        : `<path stroke-linecap="round" stroke-linejoin="round" 
+                 d="M2.458 12C3.732 7.943 7.523 5 12 5 
+                 c4.478 0 8.268 2.943 9.542 7
+                 -1.274 4.057-5.064 7-9.542 7
+                 -4.477 0-8.268-2.943-9.542-7z" />
+           <circle cx="12" cy="12" r="3" />`;
+});
+</script>
+
 </html>
