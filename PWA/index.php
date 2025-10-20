@@ -4,7 +4,6 @@ include './dist/database/server.php';
 
 
 $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -154,9 +153,7 @@ if ($result && $result->num_rows > 0) {
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#000" d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"/></svg>
                   </span>
                   <input type="text" class="search-input" placeholder="Search for services...">
-                  <!--<span class="location-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#000" d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7"/></svg>
-                  </span>-->
+                
               </div>
           </div>
           <div class="hero-image">
@@ -164,9 +161,6 @@ if ($result && $result->num_rows > 0) {
                   <img src="./dist/assets/images/application/hero.jpg" alt="Hero Image">
               </div>
           </div>
-          <!--<div class="bottom-cta">
-              <a href="" class="get-started-btn">Get Started</a>
-          </div>-->
       </section>
 
       <!-- Ready to Get Your Fix Section -->
