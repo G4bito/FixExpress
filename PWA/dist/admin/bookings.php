@@ -954,5 +954,106 @@ function viewUser(userId) {
     // Or redirect: window.location.href = 'view_user.php?id=' + userId;
 }
 </script>
+
+<!-- Delete Booking Modal -->
+<div class="modal fade" id="deleteBookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this booking? This action cannot be undone.</p>
+                <form id="deleteBookingForm" action="delete_booking.php" method="POST">
+                    <input type="hidden" name="booking_id" id="deleteBookingID">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete Booking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete User Modal -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+                <form id="deleteUserForm" action="delete_user.php" method="POST">
+                    <input type="hidden" name="user_id" id="deleteUserID">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Worker Modal -->
+<div class="modal fade" id="deleteWorkerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Worker</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this worker? This action cannot be undone.</p>
+                <form id="deleteWorkerForm" action="delete_worker.php" method="POST">
+                    <input type="hidden" name="worker_id" id="deleteWorkerID">
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete Worker</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize delete modals
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete booking modal
+    const deleteBookingModal = document.getElementById('deleteBookingModal');
+    if (deleteBookingModal) {
+        deleteBookingModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const bookingId = button.getAttribute('data-id');
+            this.querySelector('#deleteBookingID').value = bookingId;
+        });
+    }
+
+    // Delete user modal
+    const deleteUserModal = document.getElementById('deleteUserModal');
+    if (deleteUserModal) {
+        deleteUserModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const userId = button.getAttribute('data-id');
+            this.querySelector('#deleteUserID').value = userId;
+        });
+    }
+
+    // Delete worker modal
+    const deleteWorkerModal = document.getElementById('deleteWorkerModal');
+    if (deleteWorkerModal) {
+        deleteWorkerModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const workerId = button.getAttribute('data-id');
+            this.querySelector('#deleteWorkerID').value = workerId;
+        });
+    }
+});
+</script>
 </body>
 </html>

@@ -115,6 +115,7 @@ foreach ($bookings as &$b) {
     $b['price'] = $b['price'] ?? '₱0';
 }
 
+// --- Keep connection open until after services <select> ---
 ?>
 
 <!doctype html>
@@ -124,7 +125,6 @@ foreach ($bookings as &$b) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Worker Dashboard - FixExpress</title>
 <style>
-  
 /* --------------------------------------------
    GLOBAL RESETS
 -------------------------------------------- */
