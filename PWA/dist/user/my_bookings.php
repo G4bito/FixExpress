@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once '../database/server.php';
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
@@ -7,31 +8,16 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Database connection
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "fixexpress";
-
-$conn = new mysqli($host, $user, $pass, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
 $user_id = $_SESSION['user_id'];
 
-// Fetch complete user data
-$userQuery = "SELECT email, first_name, last_name, username FROM users WHERE user_id = ?";
+// Get user's email
+$userQuery = "SELECT email FROM users WHERE user_id = ?";
 $userStmt = $conn->prepare($userQuery);
 $userStmt->bind_param("i", $user_id);
 $userStmt->execute();
 $userResult = $userStmt->get_result();
-$userData = $userResult->fetch_assoc();
-$userEmail = $userData['email'];
-$first_name = $userData['first_name'];
-$last_name = $userData['last_name'];
-$username = $userData['username'];
-$userStmt->close();
+$userEmail = $userResult->fetch_assoc()['email'];
+
 // Fetch user's bookings
 $query = "
     SELECT 
@@ -73,17 +59,12 @@ while ($row = $result->fetch_assoc()) {
 }
 ?>
 
-<!doctype html>
-<html lang="en" data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" dir="ltr" data-pc-theme="light">
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Bookings - FixExpress</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="My bookings page for FixExpress" />
-    <meta name="keywords" content="bookings, services, maintenance" />
-    <meta name="author" content="Sniper 2025" />
-    <link rel="stylesheet" href="../assets/css/index.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -130,27 +111,27 @@ while ($row = $result->fetch_assoc()) {
             border-bottom: 3px solid #f97316;
             color: #f97316;
         }
-        
     </style>
 </head>
 <body class="bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
-    <?php include '../includes/header.php'; ?>
-
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="../index.php" class="text-2xl font-bold text-orange-600">FixExpress</a>
+                </div>
                 <div class="flex items-center space-x-4">
-                    <div class="relative group">
-                       
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
-                            <a href="profile.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                            <a href="my_bookings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Bookings</a>
-                            <hr class="my-1">
-                            <a href="../..logout.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
-                        </div>
-                    </div>
+                    <a href="../../index.php" class="text-gray-600 hover:text-orange-600 transition-colors">
+                        <i class="fas fa-home mr-2"></i>Home
+                    </a>
+                    <a href="../logout.php" class="text-gray-600 hover:text-orange-600 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
                 </div>
             </div>
-        </nav>
-    </header>
-        
+        </div>
+    </nav>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 class="text-4xl font-bold text-gray-800 mb-8">My Bookings</h1>
 
