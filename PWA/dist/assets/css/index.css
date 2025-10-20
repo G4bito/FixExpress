@@ -1232,7 +1232,14 @@
   background: linear-gradient(180deg, #b25d00, #6d3f00);
   color: #fff;
 }
-
+.top-rated-section h2 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #fff, #ffd28a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 15px;
+}
 .section-title {
   font-size: 1.8rem;
   margin-bottom: 30px;

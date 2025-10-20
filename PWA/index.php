@@ -2,12 +2,9 @@
 session_start();
 include './dist/database/server.php';
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
 
-$user_id = $_SESSION['user_id'];
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+
 $host = "localhost";
 $user = "root";
 $pass = "";
@@ -314,7 +311,7 @@ if ($result && $result->num_rows > 0) {
           </div>
 
           <div class="view-all-container">
-              <button onclick="window.location.href='./dist/admin/template01.php'" class="view-all-btn">View all services</button>
+              <button onclick="window.location.href='./dist/admin/template01.php'" class="view-all-btn"style="display: inline-block; padding: 12px 30px; background: var(--primary-color, #f39c12); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;">View all services</button>
           </div>
       </section>
 
@@ -343,7 +340,7 @@ if ($result && $result->num_rows > 0) {
 
   <!-- View All Ratings Button -->
     <div class="tech-footer">
-      <a href="./dist/admin/all-professionals.php" class="view-all-btn">View All Professionals</a>
+      <a href="./dist/admin/all-professionals.php" class="view-all-btn" style="display: inline-block; padding: 12px 30px; background: var(--primary-color, #f39c12); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;">View All Professionals</a>
     </div>
 </section>
 

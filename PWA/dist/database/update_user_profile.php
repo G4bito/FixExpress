@@ -32,7 +32,7 @@ $last_name = isset($parts[1]) ? implode(' ', array_slice($parts, 1)) : '';
 $stmt = $conn->prepare("UPDATE users 
                         SET first_name=?, last_name=?, email=?, password=? WHERE user_id=?");
 
-$stmt->bind_param("ssssi", $first_name, $last_name, $email, $password, $user_id);
+$stmt->bind_param("sssssi", $first_name, $last_name, $username, $email, $hashed_password);
 
 if ($stmt->execute()) {
     echo json_encode(['status' => 'success', 'message' => 'Profile updated successfully']);
