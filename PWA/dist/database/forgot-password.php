@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 require 'vendor/autoload.php';
-include('./dist/database/server.php'); // your DB connection
+include('./dist/database/loginserver.php');
 
 if (isset($_POST['send_code'])) {
     $email = $_POST['email'];

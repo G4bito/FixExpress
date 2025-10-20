@@ -15,7 +15,7 @@ ini_set('display_errors', 1);
 
 // --- CLIENT SIGNUP PROCESS ---
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['signup'])) {
-    $first = trim($_POST['first_name']);
+    $first = trim($_POST['first_name']);                                         
     $last = trim($_POST['last_name']);
     $user = trim($_POST['username']);
     $email = trim($_POST['email']);

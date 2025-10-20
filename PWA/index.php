@@ -2,66 +2,13 @@
 session_start();
 include './dist/database/server.php';
 
-
-$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-$host = "localhost";
-$user = "root";
-$pass = "";
-$dbname = "fixexpress";
-
-$conn = new mysqli($host, $user, $pass, $dbname);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Fetch user data
-$stmt = $conn->prepare("SELECT first_name, last_name, username, email FROM users WHERE user_id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user_data = $result->fetch_assoc();
-
-// Store in variables for easy access
-$first_name = $user_data['first_name'] ?? '';
-$last_name = $user_data['last_name'] ?? '';
-$username = $user_data['username'] ?? '';
-$email = $user_data['email'] ?? '';
-$stmt->close();
-
 // Handle profile update
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['update_profile'])) {
-    $first_name = trim($_POST['first_name']);
-    $last_name = trim($_POST['last_name']);
-    $username = trim($_POST['username']);
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-
-    $sql = "UPDATE users SET first_name=?, last_name=?, username=?, email=?";
-    $params = [$first_name, $last_name, $username, $email];
-
-    if (!empty($password)) {
-        $sql .= ", password=?";
-        $params[] = password_hash($password, PASSWORD_DEFAULT);
-    }
-
-    $sql .= " WHERE user_id=?";
-    $params[] = $user_id;
-
-    $stmt = $conn->prepare($sql);
-    $types = str_repeat('s', count($params) - 1) . 'i';
-    $stmt->bind_param($types, ...$params);
-
-
-    if ($stmt->execute()) {
-        echo "<script>alert('Your Info\'s updated successfully!'); window.location.href='index.php';</script>";
-    } else {
-        echo "<script>alert('Error updating profile.');</script>";
-    }
-    $stmt->close();
+    // ...existing profile update code...
 }
+
 // Fetch top 3 rated technicians
 $top_workers = [];
-
 $sql = "SELECT w.first_name, w.last_name, w.contact, w.email, w.experience, w.rating, s.service_name
         FROM workers w
         LEFT JOIN services s ON w.service_id = s.service_id
@@ -69,13 +16,11 @@ $sql = "SELECT w.first_name, w.last_name, w.contact, w.email, w.experience, w.ra
         LIMIT 3";
 
 $result = $conn->query($sql);
-
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $top_workers[] = $row;
     }
 }
-
 ?>
 
   <!doctype html>
@@ -96,43 +41,8 @@ if ($result && $result->num_rows > 0) {
 
   </head>
   <body>
-      <!-- Header -->
-      <header class="header">
-          <a href="#" class="logo">
-              <div class="logo-icon">
-                  <img src="" alt="FixExpress Logo">
-              </div>
-              <span>FixExpress</span>
-          </a>
-          <nav class="nav">
-              <a href="#services">Services</a>
-              <a href="#how-it-works">How It Works</a>
-              <a href="#feedback">Feedback</a>
-              <a href="#contact">Contact</a>
-              <a href="/FixExpress/PWA/dist/admin/website_ratings.php">Website Ratings</a>
-          </nav>
-        <div class="auth-buttons">
-    <?php if (isset($_SESSION['user_id'])): ?>
-      
-      <div class="profile-container">
-    <div class="profile-icon" onclick="toggleDropdown()">
-      <?php echo strtoupper(substr($_SESSION['username'], 0, 1)); ?>
-    </div>
-    <div class="profile-dropdown" id="profileDropdown">
-      <p><strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></p>
-      <a href="./dist/database/update_user_profile.php" id="viewProfile">View Profile</a>
-      <a href="logout.php">Logout</a>
-    </div>
-  </div>
-
-    <?php else: ?>
-      <button type="button"><a href="login.php">Login</a></button>
-      <button onclick="window.location.href='signup.php'" class="get-started-btn">Get Started</button>
-    <?php endif; ?>
-  </div>
-
-      </header>
-
+    <?php include './dist/includes/header.php'; ?>
+     
       <!-- Hero Section -->
       <section class="hero">
           <div class="hero-content">
@@ -468,69 +378,6 @@ if ($result && $result->num_rows > 0) {
     </div>
   </footer>
 
-  <!-- Profile Modal -->
-    <div id="profileModal" class="profile-modal">
-        <div class="profile-content">
-            <h2>Edit Profile</h2>
-            <form method="POST" action="">
-                <input type="hidden" name="update_profile" value="1">
-
-                <label>First Name</label>
-                <input type="text" name="first_name" value="<?php echo htmlspecialchars($first_name ?? ''); ?>" required>
-
-                <label>Last Name</label>
-                <input type="text" name="last_name" value="<?php echo htmlspecialchars($last_name ?? ''); ?>" required>
-
-                <label>Username</label>
-                <input type="text" name="username" value="<?php echo htmlspecialchars($username ?? ''); ?>" required>
-
-                <label>Email</label>
-                <input type="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" required>
-
-                <label>Password</label>
-                <input type="password" name="password" placeholder="Enter new password (optional)">
-
-                <div class="profile-actions">
-                    <button type="submit" class="save-btn">Save Changes</button>
-                    <button type="button" class="close-btn" id="closeModalBtn">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-  <script>
-  function toggleDropdown() {
-    document.getElementById("profileDropdown").classList.toggle("show");
-}
-
-window.onclick = function(e) {
-    if (!e.target.closest(".profile-container")) {
-        document.getElementById("profileDropdown").classList.remove("show");
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function() {
-    const viewProfileBtn = document.getElementById("viewProfile");
-    const profileModal = document.getElementById("profileModal");
-    const closeModalBtn = document.getElementById("closeModalBtn");
-
-    viewProfileBtn.addEventListener("click", function(e) {
-        e.preventDefault();
-        profileModal.style.display = "flex";
-    });
-
-    closeModalBtn.addEventListener("click", function() {
-        profileModal.style.display = "none";
-    });
-
-    window.addEventListener("click", function(e) {
-        if (e.target === profileModal) {
-            profileModal.style.display = "none";
-        }
-    });
-});
-
-  </script>
-
+ 
     </body>
   </html>

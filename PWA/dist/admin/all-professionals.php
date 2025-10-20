@@ -184,7 +184,7 @@ $categories = $conn->query("SELECT * FROM services ORDER BY service_name ASC");
     <div class="sidebar">
         <div class="top-buttons">
             <a href="/FixExpress/PWA/index.php" class="btn">
-
+ 
                 <!-- Left arrow SVG -->
                 <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                     <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
