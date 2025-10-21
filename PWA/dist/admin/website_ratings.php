@@ -305,7 +305,7 @@ $averageRating = $avgRow['average_rating'] ? round($avgRow['average_rating'], 1)
     <div class="container">
         <div class="rating-card">
             <div class="rating-header">
-                <h1>Website Feedback</h1>
+                <h1>Website Ratings</h1>
                 <?php if ($result->num_rows > 0): ?>
                     <div class="average-rating"><?php echo $averageRating; ?></div>
                     <div class="stars">
