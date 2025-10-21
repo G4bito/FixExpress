@@ -134,7 +134,7 @@ foreach ($bookings as &$b) {
     $b['fullname'] = $b['fullname'] ?? 'Unknown';
     $b['service_name'] = $b['service_name'] ?? 'Unknown Service';
     $b['date'] = !empty($b['date']) ? date('M d, Y', strtotime($b['date'])) : 'Unknown Date';
-    $b['time'] = $b['time'] ?? 'Unknown Time';
+    $b['time'] = !empty($b['time']) ? date('g:i A', strtotime($b['time'])) : 'Unknown Time';
     $b['address'] = $b['address'] ?? 'Unknown Location';
     $b['price'] = $b['price'] ?? '₱0';
 }
