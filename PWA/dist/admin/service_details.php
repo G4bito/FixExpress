@@ -418,7 +418,16 @@ $row = $result->fetch_assoc();
     <h3>Available Professionals</h3>
     <?php
     $service_id = $row['service_id'];
-    $workerQuery = "SELECT * FROM workers WHERE service_id = $service_id AND (status = 'Approved')";
+    $workerQuery = "
+        SELECT 
+            w.*,
+            COALESCE(ROUND(AVG(wr.rating), 1), 0) as rating,
+            COUNT(wr.rating_id) as rating_count
+        FROM workers w
+        LEFT JOIN worker_ratings wr ON w.worker_id = wr.worker_id
+        WHERE w.service_id = $service_id AND w.status = 'Approved'
+        GROUP BY w.worker_id
+    ";
     $workerResult = $conn->query($workerQuery);
 
     if ($workerResult->num_rows > 0) {
@@ -429,7 +438,7 @@ $row = $result->fetch_assoc();
             <h4>{$worker['first_name']} {$worker['last_name']}</h4>
             <p><strong>Experience:</strong> {$worker['experience']}</p>
             <p><strong>Contact:</strong> {$worker['contact']}</p>
-            <p class='rating'><strong>Rating:</strong> ⭐ {$worker['rating']}/5</p>
+            <p class='rating'><strong>Rating:</strong> ⭐ {$worker['rating']}/5 ({$worker['rating_count']} reviews)</p>
             <button class='btn-book' onclick='openModal({$worker['worker_id']})'>Hire Now</button>
           </div>
         ";
