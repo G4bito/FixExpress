@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $userStmt->bind_param("s", $username);
     $userStmt->execute();
     $userResult = $userStmt->get_result();
-
+    
     if ($userResult->num_rows === 1) {
         $user = $userResult->fetch_assoc();
         // Check password using modern hashing, with a fallback to MD5 for older accounts
@@ -76,6 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (empty($error)) {
             $error = "Invalid username or password.";
         }
+    }
+    
+    if (empty($error)) {
+        $error = "Invalid username or password.";
     }
 }
 ?>

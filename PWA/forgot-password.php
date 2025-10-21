@@ -19,8 +19,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Generate a random reset code
         $reset_code = sprintf("%06d", mt_rand(0, 999999));
-        // Set expiry time 1 hour from now using MySQL's timestamp
-        $expiry = date('Y-m-d H:i:s', time() + 3600); // Code expires in 1 hour
+        
+        // Set expiry time 1 hour from now
+        $expiry = date('Y-m-d H:i:s', strtotime('+1 hour')); // Code expires in 1 hour
+        
+        // Invalidate any existing unused codes for this user
+        $invalidate_stmt = $conn->prepare("UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0");
+        $invalidate_stmt->bind_param("i", $user['user_id']);
+        $invalidate_stmt->execute();
         
         // For debugging
         error_log("Generated reset code: " . $reset_code);
@@ -69,26 +75,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Forgot Password - FixExpress</title>
     <link rel="stylesheet" href="./dist/assets/css/login.css">
 </head>
+<style>
+    /* This will handle the auto fill */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px #2a2a2a inset !important; 
+        -webkit-text-fill-color: #ffffff !important; 
+        caret-color: #ffffff !important;
+        transition: background-color 9999s ease-in-out 0s !important;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(to bottom, #d97f3e, #151010);
+        border: none;
+        border-radius: 30px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(217, 127, 62, 0.3);
+    }
+
+    .form-group input[type="password"],
+    .form-group input[type="text"],
+    .form-group input[type="email"] {
+        width: 100%;
+        padding: 12px;
+        background: #2c2c2c;
+        border: 2px solid #d97843;
+        color: white;
+        border-radius: 5px;
+        outline: none;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .form-group input:focus {
+        border-color: #c85a28;
+        box-shadow: 0 4px 8px rgba(217, 120, 67, 0.2);
+    }
+
+    .form-group label {
+        color: #ffffffff;
+    }
+
+    .signup-link {
+        margin-top: 20px;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .signup-link a {
+        color: #d97843;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        position: relative;
+    }
+
+    .signup-link a:hover {
+        color: #c85a28;
+    }
+
+    .signup-link a::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: #c85a28;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .signup-link a:hover::after {
+        transform: scaleX(1);
+    }
+
+    .alert {
+        background: rgba(184, 117, 58, 0.1);
+        border: 1px solid #b8753a;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+</style>
 <body>
-    <div class="container">
-        <div class="form-container">
-            <h2>Forgot Password</h2>
+    <div id="forgotPasswordPage" class="login-container">
+        <div class="bottom-triangle"></div>
+        <div class="bottom-triangle-inner"></div>
+
+        <div class="login-form fade-in">
+            <h1>Password Reset</h1>
             <?php if (isset($error)): ?>
-                <div class="error-message"><?php echo $error; ?></div>
+                <div class="alert" style="color:red;text-align:center;margin-bottom:10px;">
+                    <?php echo htmlspecialchars($error); ?>
+                </div>
             <?php endif; ?>
             
             <form method="POST" action="">
                 <div class="form-group">
-                    <label for="email">Enter your email address</label>
-                    <input type="email" id="email" name="email" required>
+                    <input type="email" id="email" name="email" placeholder=" " required>
+                    <label for="email">Email Address</label>
                 </div>
                 
-                <button type="submit" class="submit-btn">Send Reset Code</button>
+                <button type="submit" class="btn-login">Send Reset Code</button>
+
+                <div class="signup-link">
+                    Remember your password?<br>
+                    <a href="login.php">Back to Login</a>
+                </div>
             </form>
-            
-            <div class="links">
-                <a href="login.php">Back to Login</a>
-            </div>
         </div>
     </div>
 </body>
