@@ -40,6 +40,7 @@ $query = "
         w.first_name as worker_first_name,
         w.last_name as worker_last_name,
         w.contact as worker_contact,
+        w.address as worker_address,
         w.worker_id,
         (SELECT AVG(rating) FROM worker_ratings WHERE worker_id = w.worker_id) as worker_rating,
         (SELECT COUNT(*) FROM worker_ratings WHERE worker_id = w.worker_id) as rating_count,
@@ -172,7 +173,7 @@ while ($row = $result->fetch_assoc()) {
                 All Bookings
             </button>
             <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="recent">
-                Recent
+                Pending
             </button>
             <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="current">
                 Current
@@ -233,11 +234,21 @@ while ($row = $result->fetch_assoc()) {
                                             <?php endif; ?>
                                         </p>
                                         <div class="flex items-center">
-                                            <div class="flex text-yellow-400">
+                                            <div class="flex">
                                                 <?php
-                                                $rating = round($booking['worker_rating']);
+                                                $rating = floatval($booking['worker_rating']);
+                                                $ratingColor = 'text-gray-300'; // Default color for 0 rating
+                                                if ($rating >= 4.0) {
+                                                    $ratingColor = 'text-green-500'; // Green for high ratings
+                                                } elseif ($rating >= 2.5) {
+                                                    $ratingColor = 'text-yellow-400'; // Yellow for medium ratings
+                                                } elseif ($rating > 0) {
+                                                    $ratingColor = 'text-red-500'; // Red for low ratings
+                                                }
+
                                                 for ($i = 1; $i <= 5; $i++) {
-                                                    echo '<i class="' . ($i <= $rating ? 'fas' : 'far') . ' fa-star text-sm"></i>';
+                                                    $starClass = $i <= round($rating) ? 'fas ' . $ratingColor : 'far text-gray-300';
+                                                    echo '<i class="' . $starClass . ' fa-star text-sm"></i>';
                                                 }
                                                 ?>
                                             </div>
@@ -296,12 +307,72 @@ while ($row = $result->fetch_assoc()) {
                         <?php endif; ?>
 
                         <!-- View Details Button -->
-                        <button class="mt-4 w-full bg-white border border-orange-500 text-orange-500 rounded-md py-2 hover:bg-orange-50 transition-colors">
+                        <button onclick="openDetailsModal(<?= htmlspecialchars(json_encode($booking)) ?>)" 
+                                class="mt-4 w-full bg-white border border-orange-500 text-orange-500 rounded-md py-2 hover:bg-orange-50 transition-colors">
                             View Details
                         </button>
                     </div>
                 <?php endforeach; ?>
             <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 transform transition-all">
+            <div class="flex justify-between items-start mb-4">
+                <h2 class="text-2xl font-bold text-gray-800" id="modalServiceName"></h2>
+                <button onclick="closeDetailsModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Status -->
+                <div class="flex items-center">
+                    <span class="font-medium text-gray-700 w-32">Status:</span>
+                    <span id="modalStatus" class="px-3 py-1 rounded-full text-sm font-medium"></span>
+                </div>
+
+                <!-- Date and Time -->
+                <div class="flex items-center">
+                    <span class="font-medium text-gray-700 w-32">Date & Time:</span>
+                    <span id="modalDateTime" class="text-gray-600"></span>
+                </div>
+
+                <!-- Service Location -->
+                <div class="flex items-start">
+                    <span class="font-medium text-gray-700 w-32">Your Address:</span>
+                    <span id="modalLocation" class="text-gray-600 flex-1"></span>
+                </div>
+
+                <!-- Notes -->
+                <div>
+                    <span class="font-medium text-gray-700 block mb-1">Problem: </span>
+                    <p id="modalNotes" class="text-gray-600 bg-gray-50 p-3 rounded"></p>
+                </div>
+
+                <!-- Professional Info -->
+                <div class="border-t pt-4 mt-4">
+                    <h3 class="font-medium text-gray-700 mb-2">Professional Information</h3>
+                    <div id="modalProfessionalInfo" class="space-y-2"></div>
+                </div>
+
+                <!-- Price -->
+                <div class="border-t pt-4 mt-4">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-700">Total Price:</span>
+                        <span id="modalPrice" class="text-xl font-bold text-gray-900"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+                <button onclick="closeDetailsModal()" 
+                        class="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors">
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 
@@ -397,6 +468,105 @@ while ($row = $result->fetch_assoc()) {
                         alert('Error submitting rating: ' + error.message);
                     }
                 });
+            });
+
+            // Modal functionality
+            window.openDetailsModal = function(booking) {
+                const modal = document.getElementById('detailsModal');
+                const statusColors = {
+                    'Pending': 'bg-yellow-100 text-yellow-800',
+                    'Approved': 'bg-blue-100 text-blue-800',
+                    'Completed': 'bg-green-100 text-green-800',
+                    'Cancelled': 'bg-red-100 text-red-800'
+                };
+
+                // Set modal content
+                document.getElementById('modalServiceName').textContent = booking.service_name;
+                
+                const statusElement = document.getElementById('modalStatus');
+                statusElement.textContent = booking.status;
+                statusElement.className = `px-3 py-1 rounded-full text-sm font-medium ${statusColors[booking.status] || 'bg-gray-100 text-gray-800'}`;
+                
+                document.getElementById('modalDateTime').textContent = `${new Date(booking.date).toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric'
+                })} at ${new Date(booking.date + ' ' + booking.time).toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit'
+                })}`;
+                
+                document.getElementById('modalLocation').textContent = booking.address || 'Not specified';
+                document.getElementById('modalNotes').textContent = booking.notes || 'No additional notes';
+                
+                // Professional info
+                const professionalInfo = document.getElementById('modalProfessionalInfo');
+                if (booking.worker_id) {
+                    let professionalContent = '';
+                    if (booking.worker_first_name) {
+                        professionalContent += `
+                            <p class="text-gray-800">
+                                <span class="font-medium">Name:</span> 
+                                ${booking.worker_first_name} ${booking.worker_last_name}
+                            </p>`;
+                    }
+                    if (booking.worker_contact) {
+                        professionalContent += `
+                            <p class="text-gray-800">
+                                <span class="font-medium">Contact:</span> 
+                                ${booking.worker_contact}
+                            </p>`;
+                    }
+                    if (booking.worker_rating) {
+                        const rating = parseFloat(booking.worker_rating);
+                        let ratingColor = 'text-gray-300';
+                        if (rating >= 4.0) ratingColor = 'text-green-500';
+                        else if (rating >= 2.5) ratingColor = 'text-yellow-400';
+                        else if (rating > 0) ratingColor = 'text-red-500';
+
+                        professionalContent += `
+                            <div class="flex items-center">
+                                <span class="font-medium text-gray-800 mr-2">Rating:</span>
+                                <div class="flex items-center">
+                                    <div class="flex mr-1">`;
+                        
+                        for (let i = 1; i <= 5; i++) {
+                            professionalContent += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star ${ratingColor}"></i>`;
+                        }
+                        
+                        professionalContent += `
+                                    </div>
+                                    <span class="text-sm text-gray-500">(${booking.rating_count} reviews)</span>
+                                </div>
+                            </div>`;
+                    }
+                    professionalInfo.innerHTML = professionalContent;
+                } else {
+                    professionalInfo.innerHTML = '<p class="text-gray-500">No professional assigned yet</p>';
+                }
+
+                document.getElementById('modalPrice').textContent = booking.price ? 
+                    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP' }).format(booking.price) : 
+                    'Price not set';
+
+                // Show modal
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            window.closeDetailsModal = function() {
+                const modal = document.getElementById('detailsModal');
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            // Close modal when clicking outside
+            const modal = document.getElementById('detailsModal');
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeDetailsModal();
+                }
             });
         });
     </script>

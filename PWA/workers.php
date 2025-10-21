@@ -5,16 +5,36 @@ if (!isset($_SESSION['worker_id'])) {
     exit();
 }
 
-$worker_id = $_SESSION['worker_id'];
-$username = $_SESSION['username'] ?? 'W';
-
+// Database connection
 $host = "localhost";
 $user = "root";
 $pass = "";
 $dbname = "fixexpress";
 
 $conn = new mysqli($host, $user, $pass, $dbname);
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$worker_id = $_SESSION['worker_id'];
+
+// Get worker's ratings
+// Get worker's ratings (using a single, efficient query)
+$ratingsQuery = "
+    SELECT 
+        AVG(rating) as average_rating,
+        COUNT(*) as total_ratings
+    FROM worker_ratings 
+    WHERE worker_id = ?
+";
+$ratingStmt = $conn->prepare($ratingsQuery);
+$ratingStmt->bind_param("i", $worker_id);
+$ratingStmt->execute();
+$ratingResult = $ratingStmt->get_result();
+$ratingData = $ratingResult->fetch_assoc();
+$averageRating = number_format($ratingData['average_rating'] ?? 0, 1);
+$totalRatings = (int)$ratingData['total_ratings'];
+$ratingStmt->close(); // This was being called twice, causing the fatal error.
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $first_name = trim($_POST['first_name']);
@@ -23,8 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email']);
     $address = trim($_POST['address']);
     $service_id = $_POST['service_id'];
-    $worker_id = $_SESSION['worker_id'];
-
 
     // Basic validation
     if (strlen($first_name) > 50 || strlen($last_name) > 50) {
@@ -47,10 +65,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ");
     $stmt->bind_param("ssssssi", $first_name, $last_name, $username_input, $email, $address, $service_id, $worker_id);
 
-
     if ($stmt->execute()) {
         $_SESSION['username'] = $username_input;
-        echo "<script>alert('Profile updated successfully!');</script>";
+        // Redirect to prevent form resubmission
+        header("Location: workers.php?updated=1");
+        exit();
     } else {
         echo "<script>alert('Error updating profile.');</script>";
     }
@@ -58,6 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->close();
 }
 
+if (isset($_GET['updated'])) {
+    echo "<script>alert('Profile updated successfully!'); window.history.replaceState(null, null, window.location.pathname);</script>";
+}
 
 
 // Fetch worker data
@@ -67,6 +89,8 @@ $stmt_worker->execute();
 $result_worker = $stmt_worker->get_result();
 $worker = $result_worker->fetch_assoc();
 $stmt_worker->close();
+
+$username = $worker['username'] ?? 'W';
 
 if ($worker) {
     $worker['fullname'] = trim(($worker['first_name'] ?? '') . ' ' . ($worker['last_name'] ?? ''));
@@ -104,7 +128,7 @@ $stmt->close();
 $stats = ['pending'=>0,'approved'=>0,'completed'=>0];
 foreach ($bookings as &$b) {
     $status = strtolower($b['status'] ?? 'pending');
-    if ($status === 'approved') $status = 'approved';
+    if ($status === 'confirmed') $status = 'approved'; // Normalize 'confirmed' to 'approved'
     $b['status'] = $status;
     if (isset($stats[$status])) $stats[$status]++;
     $b['fullname'] = $b['fullname'] ?? 'Unknown';
@@ -124,7 +148,134 @@ foreach ($bookings as &$b) {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Worker Dashboard - FixExpress</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
+/* --------------------------------------------
+   MODAL STYLES
+-------------------------------------------- */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 8px;
+    padding: 24px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.rating-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: transform 0.2s ease;
+}
+
+.rating-item:hover {
+    transform: translateY(-2px);
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.rating-item {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 /* --------------------------------------------
    GLOBAL RESETS
 -------------------------------------------- */
@@ -138,6 +289,71 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background: linear-gradient(135deg, #D46419 0%, #171B1F 95%);
   min-height: 100vh;
+}
+
+/* --------------------------------------------
+   STAT CARDS
+-------------------------------------------- */
+.stat-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card.cursor-pointer:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.stat-card h3 {
+  font-size: 1.1rem;
+  color: #4B5563;
+  margin-bottom: 0.5rem;
+}
+
+.stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1F2937;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card .stat-label {
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+/* --------------------------------------------
+   MODALS
+-------------------------------------------- */
+#ratingsModal {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#ratingsModal.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#ratingsModal.flex {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#ratingsModal .bg-white {
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+}
+
+#ratingsModal.flex .bg-white {
+  transform: scale(1);
 }
 
 /* --------------------------------------------
@@ -277,6 +493,7 @@ body {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .stat-card:hover {
@@ -609,6 +826,10 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 /* --- Profile Modal Styles --- */
+html {
+  scroll-behavior: smooth;
+}
+
 .profile-modal {
   display: none;
   position: fixed;
@@ -767,38 +988,105 @@ body {
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" onclick="filterBookings('pending', event)">
             <h3>Pending</h3>
             <div class="stat-value"><?php echo $stats['pending']; ?></div>
             <div class="stat-label">Awaiting Response</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="filterBookings('approved', event)">
             <h3>Approved</h3>
             <div class="stat-value"><?php echo $stats['approved']; ?></div>
             <div class="stat-label">Upcoming Jobs</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" onclick="filterBookings('completed', event)">
             <h3>Completed</h3>
             <div class="stat-value"><?php echo $stats['completed']; ?></div>
             <div class="stat-label">Total Jobs Done</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card cursor-pointer" onclick="showRatings()">
             <h3>Rating</h3>
-            <div class="stat-value">4.9⭐</div>
-            <div class="stat-label">Average Rating</div>
+            <div class="stat-value"><?= $averageRating ?>⭐</div>
+            <div class="stat-label"><?= $totalRatings ?> Rating<?= $totalRatings !== 1 ? 's' : '' ?></div>
+        </div>
+    </div>
+
+    <!-- Ratings Modal -->
+    <div id="ratingsModal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Customer Ratings</h2>
+                <button onclick="hideRatings()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <?php
+                $detailedRatingsQuery = "
+                    SELECT 
+                        wr.*,
+                        u.first_name,
+                        u.last_name,
+                        b.date as booking_date,
+                        s.service_name
+                    FROM worker_ratings wr
+                    JOIN users u ON wr.user_id = u.user_id
+                    JOIN bookings b ON wr.booking_id = b.booking_id
+                    JOIN services s ON b.service_id = s.service_id
+                    WHERE wr.worker_id = ?
+                    ORDER BY wr.date_submitted DESC
+                ";
+                $detailedStmt = $conn->prepare($detailedRatingsQuery);
+                $detailedStmt->bind_param("i", $worker_id);
+                $detailedStmt->execute();
+                $detailedResult = $detailedStmt->get_result();
+                
+                if ($detailedResult->num_rows > 0) {
+                    while ($rating = $detailedResult->fetch_assoc()) {
+                        ?>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-medium">
+                                        <?= htmlspecialchars($rating['first_name'] . ' ' . $rating['last_name']) ?>
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        <?= htmlspecialchars($rating['service_name']) ?> • 
+                                        <?= date('M d, Y', strtotime($rating['booking_date'])) ?>
+                                    </div>
+                                </div>
+                                <div class="flex text-yellow-400">
+                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                        <i class="fas fa-star <?= $i <= $rating['rating'] ? 'text-yellow-400' : 'text-gray-300' ?>"></i>
+                                    <?php endfor; ?>
+                                </div>
+                            </div>
+                            <?php if (!empty($rating['comment'])): ?>
+                                <div class="mt-2 text-gray-600">
+                                    "<?= htmlspecialchars($rating['comment']) ?>"
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <?php
+                    }
+                } else {
+                    echo '<div class="text-center text-gray-500">No ratings yet</div>';
+                }
+                $detailedStmt->close();
+                ?>
+            </div>
         </div>
         
     </div>
-
-    <div class="bookings-section">
+    
+    <div class="bookings-section" id="bookings-section">
         <div class="section-header">
             <h2>My Bookings</h2>
             <div class="filter-tabs">
-                <button class="filter-tab active" onclick="filterBookings('all', event)">All</button>
-                <button class="filter-tab" onclick="filterBookings('pending', event)">Pending</button>
-                <button class="filter-tab" onclick="filterBookings('Approved', event)">Approved</button>
-                <button class="filter-tab" onclick="filterBookings('completed', event)">Completed</button>
-                <button class="filter-tab" onclick="filterBookings('cancelled', event)">Cancelled</button>
+                <button class="filter-tab active" data-filter="all" onclick="filterBookings('all', event)">All</button>
+                <button class="filter-tab" data-filter="pending" onclick="filterBookings('pending', event)">Pending</button>
+                <button class="filter-tab" data-filter="approved" onclick="filterBookings('approved', event)">Approved</button>
+                <button class="filter-tab" data-filter="completed" onclick="filterBookings('completed', event)">Completed</button>
+                <button class="filter-tab" data-filter="cancelled" onclick="filterBookings('cancelled', event)">Cancelled</button>
             </div>
         </div>
 
@@ -807,7 +1095,7 @@ body {
             <div class="booking-card" data-status="<?php echo htmlspecialchars($booking['status']); ?>" data-booking-id="<?php echo (int)$booking['booking_id']; ?>">
                 <div class="booking-status-indicator status-<?php echo htmlspecialchars($booking['status']); ?>">
                     <?php 
-                        $icons = ['pending'=>'⏳','Approved'=>'✓','completed'=>'✔','cancelled'=>'✗'];
+                        $icons = ['pending'=>'⏳','approved'=>'✓','completed'=>'✔','cancelled'=>'✗'];
                         echo $icons[$booking['status']] ?? '';
                     ?>
                 </div>
@@ -817,7 +1105,7 @@ body {
 </h3>
 
                     <span class="status-badge status-<?php echo htmlspecialchars($booking['status']); ?>-badge">
-                        <?php echo ucfirst($booking['status']); ?>
+                        <?php echo ucfirst(htmlspecialchars($booking['status'])); ?>
                     </span>
                     <div class="booking-info">
                         <div><strong>Customer:</strong> <?php echo htmlspecialchars($booking['fullname']); ?></div>
@@ -830,7 +1118,7 @@ body {
                 <div class="booking-actions">
                     <?php if($booking['status'] === 'pending'): ?>
                         <button class="btn-action btn-accept" onclick="acceptBooking(<?php echo (int)$booking['booking_id']; ?>)">Accept</button>
-                        <button class="btn-action btn-decline" onclick="declineBooking(<?php echo (int)$booking['booking_id']; ?>)">Decline</button>
+                        <button class="btn-action btn-decline" onclick="showDeclineModal(<?php echo (int)$booking['booking_id']; ?>)">Decline</button>
                     <?php elseif($booking['status'] === 'approved'): ?>
                         <button class="btn-action btn-complete" onclick="completeBooking(<?php echo (int)$booking['booking_id']; ?>)">Mark Complete</button>
                         <button class="btn-action btn-view" onclick="viewDetails(<?php echo (int)$booking['booking_id']; ?>)">View Details</button>
@@ -988,6 +1276,36 @@ body {
 </div>
 
 <script>
+function showRatings() {
+    const modal = document.getElementById('ratingsModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        // Add animation class
+        modal.querySelector('.modal-content').classList.add('animate-in');
+    }
+}
+
+function hideRatings() {
+    const modal = document.getElementById('ratingsModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('ratingsModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                hideRatings();
+            }
+        });
+    }
+});
+
 // --- Toggle Worker Dropdown ---
 const workerIcon = document.getElementById('workerIcon');
 const workerDropdown = document.getElementById('workerDropdown');
@@ -1097,7 +1415,7 @@ function acceptBooking(bookingId) {
 }
 
 // Booking rejection function
-function declineBooking(bookingId) {
+function showDeclineModal(bookingId) {
     const declineModal = document.getElementById('declineModal');
     const closeDeclineModal = document.getElementById('closeDeclineModal');
     const cancelDeclineBtn = document.getElementById('cancelDeclineBtn');
@@ -1150,6 +1468,7 @@ function declineBooking(bookingId) {
                 const bookingCard = document.querySelector(`.booking-card[data-booking-id="${bookingId}"]`);
                 if (bookingCard) {
                     bookingCard.querySelector('.status-badge').textContent = 'Cancelled';
+                    bookingCard.querySelector('.status-badge').textContent = 'Cancelled'; // Corrected typo
                     bookingCard.querySelector('.status-badge').className = 'status-badge status-cancelled-badge';
                     bookingCard.setAttribute('data-status', 'cancelled');
                 }
@@ -1169,9 +1488,19 @@ function declineBooking(bookingId) {
 // Filter bookings function
 function filterBookings(status, event) {
     // Update active tab
+    // If the click came from a stat card or a filter tab, scroll to the bookings section
+    if (event && (event.currentTarget.classList.contains('stat-card') || event.currentTarget.classList.contains('filter-tab'))) {
+        smoothScrollTo('bookings-section');
+    }
+    
     const filterTabs = document.querySelectorAll('.filter-tab');
     filterTabs.forEach(tab => tab.classList.remove('active'));
-    event.target.classList.add('active');
+
+    // Find and activate the correct tab based on the status
+    const activeTab = document.querySelector(`.filter-tab[data-filter="${status}"]`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
 
     // Get all booking cards
     const bookingCards = document.querySelectorAll('.booking-card');
@@ -1323,6 +1652,68 @@ function viewDetails(bookingId) {
         bookingDetailsContent.innerHTML = '<p style="color: #721c24; text-align: center; padding: 20px;">An error occurred while loading the booking details.</p>';
     });
 }
+
+function smoothScrollTo(elementId) {
+    const targetElement = document.getElementById(elementId);
+    if (!targetElement) return;
+
+    const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    const duration = 800; // milliseconds
+    let startTime = null;
+
+    function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const run = Math.min(timeElapsed / duration, 1);
+        const ease = run < 0.5 ? 2 * run * run : (4 - 2 * run) * run - 1; // ease in and out
+        window.scrollTo(startPosition, startPosition + distance * ease);
+        if (timeElapsed < duration) requestAnimationFrame(animation);
+    }
+
+    requestAnimationFrame(animation);
+}
+// Ratings modal functions
+function showRatings() {
+    const modal = document.getElementById('ratingsModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        // Prevent body scrolling when modal is open
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function hideRatings() {
+    const modal = document.getElementById('ratingsModal');
+    if (modal) {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+        // Restore body scrolling
+        document.body.style.overflow = '';
+    }
+}
+
+// Event listeners for ratings modal
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('ratingsModal');
+    if (modal) {
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                hideRatings();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideRatings();
+            }
+        });
+    }
+});
 </script>
 </body>
 </html>

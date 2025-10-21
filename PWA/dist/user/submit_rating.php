@@ -1,8 +1,23 @@
 <?php
 session_start();
-require_once '../database/server.php';
 
 // Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(['error' => 'User not logged in']);
+    exit();
+}
+
+// Database connection
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "fixexpress";
+
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode(['error' => 'User not logged in']);
@@ -40,7 +55,7 @@ $booking = $result->fetch_assoc();
 $worker_id = $booking['worker_id'];
 
 // Check if rating already exists
-$checkRating = "SELECT rating_id FROM website_ratings WHERE booking_id = ? AND user_id = ?";
+$checkRating = "SELECT rating_id FROM worker_ratings WHERE booking_id = ? AND user_id = ?";
 $stmt = $conn->prepare($checkRating);
 $stmt->bind_param("ii", $booking_id, $user_id);
 $stmt->execute();
