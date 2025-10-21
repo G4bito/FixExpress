@@ -49,6 +49,8 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
         padding: 25px;
         margin-bottom: 30px;
         border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative; /* Ensure this container establishes a stacking context */
+        z-index: 10; /* Keep header above other content */
     }
 
     .header-section h3 {
@@ -349,8 +351,16 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <h3>📋 Admin Dashboard</h3>
             <div class="d-flex gap-2 flex-wrap">
-                <!--<a href="index.php" class="btn btn-custom-secondary btn-sm">← Back to Dashboard</a>-->
-                <button class="btn btn-custom-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addBookingModal">+ Add Booking</button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-custom-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        + Add New
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addBookingModal">Booking</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addUserModal">User</a></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addWorkerModal">Worker</a></li>
+                    </ul>
+                </div>
                 <a href="logout_admin.php" class="btn btn-custom-danger btn-sm">Logout</a>
             </div>
         </div>
@@ -422,7 +432,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Full Name</th>
                         <th>Contact</th>
                         <th>Email</th>
@@ -436,15 +446,16 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                 </thead>
                 <tbody>
                     <?php if ($result && $result->num_rows > 0): ?>
+                        <?php $booking_count = 1; ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td><strong>#<?= $row['booking_id'] ?></strong></td>
+                                <td><strong><?= $booking_count++ ?></strong></td>
                                 <td><?= htmlspecialchars($row['fullname']) ?></td>
                                 <td><?= htmlspecialchars($row['contact']) ?></td>
                                 <td><?= htmlspecialchars($row['email']) ?></td>
                                 <td><?= htmlspecialchars($row['address']) ?></td>
                                 <td><?= htmlspecialchars($row['date']) ?></td>
-                                <td><?= htmlspecialchars($row['time']) ?></td>
+                                <td><?= htmlspecialchars(date('g:i A', strtotime($row['time']))) ?></td>
                                 <td><?= htmlspecialchars($row['service_name'] ?? 'Unknown Service') ?></td>
                                 <td>
                                     <?php
@@ -502,7 +513,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Full Name</th>
                         <th>Username</th>
                         <th>Email</th>
@@ -512,9 +523,10 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                 </thead>
                 <tbody>
                     <?php if ($usersResult && $usersResult->num_rows > 0): ?>
+                        <?php $user_count = 1; ?>
                         <?php while ($user = $usersResult->fetch_assoc()): ?>
                             <tr>
-                                <td><strong>#<?= $user['user_id'] ?></strong></td>
+                                <td><strong><?= $user_count++ ?></strong></td>
                                 <td><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']) ?></td>
                                 <td><?= htmlspecialchars($user['username']) ?></td>
                                 <td><?= htmlspecialchars($user['email']) ?></td>
@@ -558,7 +570,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>#</th>
                         <th>Full Name</th>
                         <th>Contact</th>
                         <th>Email</th>
@@ -571,9 +583,10 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                 </thead>
                 <tbody>
                     <?php if ($workersResult && $workersResult->num_rows > 0): ?>
+                        <?php $worker_count = 1; ?>
                         <?php while ($worker = $workersResult->fetch_assoc()): ?>
                             <tr>
-                                <td><strong>#<?= $worker['worker_id'] ?></strong></td>
+                                <td><strong><?= $worker_count++ ?></strong></td>
                                 <td><?= htmlspecialchars($worker['first_name'] . ' ' . $worker['last_name']) ?></td>
                                 <td><?= htmlspecialchars($worker['contact']) ?></td>
                                 <td><?= htmlspecialchars($worker['email']) ?></td>
@@ -624,6 +637,116 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Booking Modal -->
+<div class="modal fade" id="addBookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Booking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="add_booking.php" method="POST">
+                    <div class="mb-3"><input type="text" class="form-control" name="fullname" placeholder="Full Name" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="contact" placeholder="Contact" required></div>
+                    <div class="mb-3"><input type="email" class="form-control" name="email" placeholder="Email" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="address" placeholder="Address" required></div>
+                    <div class="mb-3"><input type="date" class="form-control" name="date" required></div>
+                    <div class="mb-3"><input type="time" class="form-control" name="time" required></div>
+                    <div class="mb-3">
+                        <select class="form-select" name="service_id" required>
+                            <option value="">Select Service</option>
+                            <?php
+                            $services = $conn->query("SELECT * FROM services ORDER BY service_name");
+                            while($service = $services->fetch_assoc()) {
+                                echo "<option value='{$service['service_id']}'>{$service['service_name']}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <select class="form-select" name="status" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Booking</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="add_user.php" method="POST">
+                    <div class="mb-3"><input type="text" class="form-control" name="first_name" placeholder="First Name" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="last_name" placeholder="Last Name" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="username" placeholder="Username" required></div>
+                    <div class="mb-3"><input type="email" class="form-control" name="email" placeholder="Email" required></div>
+                    <div class="mb-3"><input type="password" class="form-control" name="password" placeholder="Password" required></div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Worker Modal -->
+<div class="modal fade" id="addWorkerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Worker</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="add_worker.php" method="POST">
+                    <div class="mb-3"><input type="text" class="form-control" name="first_name" placeholder="First Name" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="last_name" placeholder="Last Name" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="username" placeholder="Username" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="contact" placeholder="Contact" required></div>
+                    <div class="mb-3"><input type="email" class="form-control" name="email" placeholder="Email" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="address" placeholder="Address" required></div>
+                    <div class="mb-3"><input type="text" class="form-control" name="experience" placeholder="Experience" required></div>
+                    <div class="mb-3">
+                        <select class="form-select" name="service_id" required>
+                            <option value="">Select Service</option>
+                            <?php
+                            // Re-fetch services for this modal
+                            $services_for_worker = $conn->query("SELECT * FROM services ORDER BY service_name");
+                            while($service = $services_for_worker->fetch_assoc()) {
+                                echo "<option value='{$service['service_id']}'>{$service['service_name']}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="mb-3"><input type="password" class="form-control" name="password" placeholder="Password" required></div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Worker</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -1054,6 +1177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
 </script>
 </body>
 </html>

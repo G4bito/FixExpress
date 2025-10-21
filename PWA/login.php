@@ -18,15 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($adminResult->num_rows === 1) {
         $admin = $adminResult->fetch_assoc();
-        // Check if password is stored in MD5 format
-        if ($admin['password'] === MD5($password) || password_verify($password, $admin['password'])) {
-            // If using old MD5, update to new password_hash
-            if ($admin['password'] === MD5($password)) {
-                $newHash = password_hash($password, PASSWORD_DEFAULT);
-                $updateStmt = $conn->prepare("UPDATE admin_accounts SET password = ? WHERE username = ?");
-                $updateStmt->bind_param("ss", $newHash, $username);
-                $updateStmt->execute();
-            }
+        // Check password using modern hashing, with a fallback to MD5 for older accounts
+        if (password_verify($password, $admin['password']) || md5($password) === $admin['password']) {
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_username'] = $username;
             header("Location: ./dist/admin/bookings.php");
@@ -43,7 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($workerResult->num_rows === 1) {
         $worker = $workerResult->fetch_assoc();
-        if (password_verify($password, $worker['password'])) {
+        // Check password using modern hashing, with a fallback to MD5 for older accounts
+        if (password_verify($password, $worker['password']) || md5($password) === $worker['password']) {
             // Check worker status before login
             if ($worker['status'] === 'Pending') {
                 $error = "Your account is waiting for admin approval.";
@@ -52,9 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } elseif ($worker['status'] === 'Approved') {
                 $_SESSION['worker_logged_in'] = true;
                 $_SESSION['worker_id'] = $worker['worker_id'];
-                $_SESSION['worker_name'] = $worker['username'];
-
-                // ✅ Redirect approved workers to workers.php
+                $_SESSION['username'] = $worker['username']; // Use consistent session key
                 header("Location: ./workers.php");
                 exit;
             } else {
@@ -72,11 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if ($userResult->num_rows === 1) {
         $user = $userResult->fetch_assoc();
-        if (password_verify($password, $user['password'])) {
+        // Check password using modern hashing, with a fallback to MD5 for older accounts
+        if (password_verify($password, $user['password']) || md5($password) === $user['password']) {
             $_SESSION['user_logged_in'] = true;
-            $_SESSION['username'] = $username;
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['username'] = $user['username'];
             header("Location: ./index.php");
             exit;
+        }
+    } else {
+        if (empty($error)) {
+            $error = "Invalid username or password.";
         }
     }
     

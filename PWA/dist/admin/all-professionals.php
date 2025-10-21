@@ -167,6 +167,63 @@ $categories = $conn->query("SELECT * FROM services ORDER BY service_name ASC");
             font-weight: bold;
         }
 
+        /* Ratings Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #2c2c2c;
+            padding: 30px 35px;
+            border-radius: 18px;
+            width: 90%;
+            max-width: 650px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #ffbf00;
+        }
+
+        .close-btn {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #aaa;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+        .close-btn:hover { color: #fff; }
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 10px;
@@ -213,6 +270,20 @@ $categories = $conn->query("SELECT * FROM services ORDER BY service_name ASC");
         <div class="category-title">All Professionals</div>
         <div class="grid visible" id="professionalGrid">
             <!-- Professionals will appear here -->
+        </div>
+    </div>
+
+    <!-- Ratings Modal -->
+    <div id="ratingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="ratingsModalTitle">Customer Ratings</h2>
+                <button class="close-btn" onclick="closeRatingsModal()">&times;</button>
+            </div>
+            <div id="ratingsModalBody" style="color: #eee;">
+                <!-- Ratings will be loaded here -->
+                <p>Loading ratings...</p>
+            </div>
         </div>
     </div>
 
@@ -268,6 +339,33 @@ function loadProfessionals(serviceId) {
                 grid.classList.add('visible');
             }, 300);
         });
+}
+
+function showRatingsModal(workerId, workerName) {
+    const modal = document.getElementById('ratingsModal');
+    const modalTitle = document.getElementById('ratingsModalTitle');
+    const modalBody = document.getElementById('ratingsModalBody');
+
+    modalTitle.textContent = `Worker Details`;
+    modalBody.innerHTML = '<p>Loading ratings...</p>';
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    fetch(`get_worker_ratings.php?worker_id=${workerId}`)
+        .then(response => response.text())
+        .then(data => {
+            modalBody.innerHTML = data;
+        })
+        .catch(error => {
+            console.error('Error fetching ratings:', error);
+            modalBody.innerHTML = '<p style="color: #ff6b6b;">Could not load ratings.</p>';
+        });
+}
+
+function closeRatingsModal() {
+    const modal = document.getElementById('ratingsModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 </script>
 </body>

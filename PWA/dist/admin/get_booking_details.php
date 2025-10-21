@@ -35,6 +35,7 @@ $booking = $result->fetch_assoc();
 if ($booking) {
     // Format the data
     $booking['date'] = date('M d, Y', strtotime($booking['date']));
+    $booking['time'] = date('g:i A', strtotime($booking['time']));
     $booking['status'] = ucfirst(strtolower($booking['status']));
     $booking['service_name'] = $booking['service_name'] ?? 'Unknown Service';
     
