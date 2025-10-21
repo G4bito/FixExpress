@@ -154,6 +154,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     Don't have an account?<br>
                     <a href="signup.php">Sign up</a>
                 </div>
+                
+                <?php if (isset($_SESSION['password_reset_success'])): ?>
+                    <div class="alert" style="color:green;text-align:center;margin-top:10px;">
+                        Password has been reset successfully!
+                    </div>
+                    <?php unset($_SESSION['password_reset_success']); ?>
+                <?php endif; ?>
             </form>
         </div>
     </div>

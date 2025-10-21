@@ -186,9 +186,9 @@
         input:-webkit-autofill:focus,
         textarea:-webkit-autofill,
         select:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 1000px #2a2a2a inset !important; 
-            -webkit-text-fill-color: #ffffff !important; 
-            caret-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0 1000px white inset !important;
+            -webkit-text-fill-color: #333333 !important;
+            caret-color: #333333 !important;
             transition: background-color 9999s ease-in-out 0s !important;
     }
     .password-group {

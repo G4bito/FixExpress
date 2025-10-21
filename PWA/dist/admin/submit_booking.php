@@ -17,11 +17,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $service = $query->fetch_assoc();
     $service_id = $service['service_id'];
 
-    // Save booking
-     $sql = "INSERT INTO bookings (worker_id, fullname, contact, email, address, date, time, notes, service_id)
-            VALUES ('$worker_id', '$fullname', '$contact', '$email', '$address', '$date', '$time', '$notes', '$service_id')";
+    // Get user_id from session
+    session_start();
+    $user_id = $_SESSION['user_id'] ?? null;
+    
+    if (!$user_id) {
+        die("Error: You must be logged in to make a booking");
+    }
 
-    if ($conn->query($sql)) {
+    // Save booking with user_id
+    $stmt = $conn->prepare("INSERT INTO bookings (user_id, worker_id, fullname, contact, email, address, date, time, notes, service_id) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("iisssssssi", $user_id, $worker_id, $fullname, $contact, $email, $address, $date, $time, $notes, $service_id);
+
+    if ($stmt->execute()) {
         header("Location: service_details.php?id=$service_id&success=1");
         exit();
     } else {

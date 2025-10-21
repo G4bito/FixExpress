@@ -39,23 +39,23 @@ $query = "
         s.service_name,
         w.first_name as worker_first_name,
         w.last_name as worker_last_name,
-        COALESCE(AVG(wr.rating), 0) as worker_rating,
-        COUNT(DISTINCT wr.rating_id) as rating_count,
+        w.contact as worker_contact,
+        w.worker_id,
+        (SELECT AVG(rating) FROM worker_ratings WHERE worker_id = w.worker_id) as worker_rating,
+        (SELECT COUNT(*) FROM worker_ratings WHERE worker_id = w.worker_id) as rating_count,
         ur.rating as user_rating,
         ur.comment as user_comment,
         ur.rating_id as user_rating_id
     FROM bookings b
     LEFT JOIN services s ON b.service_id = s.service_id
     LEFT JOIN workers w ON b.worker_id = w.worker_id
-    LEFT JOIN worker_ratings wr ON w.worker_id = wr.worker_id
     LEFT JOIN worker_ratings ur ON b.booking_id = ur.booking_id AND ur.user_id = ?
-    WHERE b.email = ?
-    GROUP BY b.booking_id
+    WHERE b.user_id = ?
     ORDER BY b.date DESC, b.time DESC
 ";
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param("is", $user_id, $userEmail);
+$stmt->bind_param("ii", $user_id, $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -217,7 +217,6 @@ while ($row = $result->fetch_assoc()) {
                         </div>
 
                         <!-- Worker Info -->
-                        <?php if ($booking['worker_first_name']): ?>
                         <div class="flex items-center mb-4">
                             <div class="flex-shrink-0">
                                 <div class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
@@ -225,25 +224,35 @@ while ($row = $result->fetch_assoc()) {
                                 </div>
                             </div>
                             <div class="ml-3">
-                                <p class="text-sm font-medium text-gray-900">
-                                    <?= htmlspecialchars($booking['worker_first_name'] . ' ' . $booking['worker_last_name']) ?>
-                                </p>
-                                <div class="flex items-center">
-                                    <div class="flex text-yellow-400">
-                                        <?php
-                                        $rating = round($booking['worker_rating']);
-                                        for ($i = 1; $i <= 5; $i++) {
-                                            echo '<i class="' . ($i <= $rating ? 'fas' : 'far') . ' fa-star text-sm"></i>';
-                                        }
-                                        ?>
-                                    </div>
-                                    <span class="ml-1 text-sm text-gray-500">
-                                        (<?= $booking['rating_count'] ?> reviews)
-                                    </span>
-                                </div>
+                                <?php if (!empty($booking['worker_id'])): ?>
+                                    <?php if (!empty($booking['worker_first_name'])): ?>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            <?= htmlspecialchars($booking['worker_first_name'] . ' ' . $booking['worker_last_name']) ?>
+                                            <?php if (!empty($booking['worker_contact'])): ?>
+                                                <span class="text-sm text-gray-500"> | <?= htmlspecialchars($booking['worker_contact']) ?></span>
+                                            <?php endif; ?>
+                                        </p>
+                                        <div class="flex items-center">
+                                            <div class="flex text-yellow-400">
+                                                <?php
+                                                $rating = round($booking['worker_rating']);
+                                                for ($i = 1; $i <= 5; $i++) {
+                                                    echo '<i class="' . ($i <= $rating ? 'fas' : 'far') . ' fa-star text-sm"></i>';
+                                                }
+                                                ?>
+                                            </div>
+                                            <span class="ml-1 text-sm text-gray-500">
+                                                (<?= $booking['rating_count'] ?> reviews)
+                                            </span>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="text-sm text-gray-500">Professional assigned (ID: <?= $booking['worker_id'] ?>)</p>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <p class="text-sm text-gray-500">No professional assigned yet</p>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <?php endif; ?>
 
                         <!-- Rating Section for Completed Bookings -->
                         <?php if ($booking['status'] == 'Completed'): ?>
