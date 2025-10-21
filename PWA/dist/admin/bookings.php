@@ -455,7 +455,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                                 <td><?= htmlspecialchars($row['email']) ?></td>
                                 <td><?= htmlspecialchars($row['address']) ?></td>
                                 <td><?= htmlspecialchars($row['date']) ?></td>
-                                <td><?= htmlspecialchars($row['time']) ?></td>
+                                <td><?= htmlspecialchars(date('g:i A', strtotime($row['time']))) ?></td>
                                 <td><?= htmlspecialchars($row['service_name'] ?? 'Unknown Service') ?></td>
                                 <td>
                                     <?php
