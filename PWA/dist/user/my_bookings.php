@@ -3,7 +3,7 @@ session_start();
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: ../login.php');
+    header('Location: ../../login.php');
     exit();
 }
 
@@ -137,23 +137,19 @@ while ($row = $result->fetch_assoc()) {
 <body class="bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
     <?php include '../includes/header.php'; ?>
 
-                <div class="flex items-center space-x-4">
-                    <div class="relative group">
-                       
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
-                            <a href="profile.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                            <a href="my_bookings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Bookings</a>
-                            <hr class="my-1">
-                            <a href="../..logout.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
-        
+    <!-- Page Header with Navigation -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-8">My Bookings</h1>
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-4">
+                <a href="/FixExpress/PWA/index.php" class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                    </svg>
+                    Home
+                </a>
+                <h1 class="text-2xl font-bold text-gray-800">My Bookings</h1>
+            </div>
+        </div>
 
         <!-- Search Bar -->
         <div class="mb-6">
