@@ -1,4 +1,13 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<?php
 $server = "localhost";
 $username = "root";
 $password = "";
@@ -10,19 +19,39 @@ $service_id = $_GET['service_id'];
 
 if ($service_id === 'all') {
     $query = "
-        SELECT w.first_name, w.last_name, w.contact, w.email, w.experience, w.rating, s.service_name
+        SELECT 
+            w.first_name, 
+            w.last_name, 
+            w.contact, 
+            w.email, 
+            w.experience,
+            s.service_name,
+            COALESCE(ROUND(AVG(wr.rating), 1), 0) as rating,
+            COUNT(wr.rating_id) as total_ratings
         FROM workers AS w
         LEFT JOIN services AS s ON w.service_id = s.service_id
-        ORDER BY s.service_name, w.rating DESC
+        LEFT JOIN worker_ratings wr ON w.worker_id = wr.worker_id
+        GROUP BY w.worker_id, w.first_name, w.last_name, w.contact, w.email, w.experience, s.service_name
+        ORDER BY s.service_name, rating DESC
     ";
 } else {
     $service_id = intval($service_id);
     $query = "
-        SELECT w.first_name, w.last_name, w.contact, w.email, w.experience, w.rating, s.service_name
+        SELECT 
+            w.first_name, 
+            w.last_name, 
+            w.contact, 
+            w.email, 
+            w.experience,
+            s.service_name,
+            COALESCE(ROUND(AVG(wr.rating), 1), 0) as rating,
+            COUNT(wr.rating_id) as total_ratings
         FROM workers AS w
         LEFT JOIN services AS s ON w.service_id = s.service_id
+        LEFT JOIN worker_ratings wr ON w.worker_id = wr.worker_id
         WHERE w.service_id = $service_id
-        ORDER BY w.rating DESC
+        GROUP BY w.worker_id, w.first_name, w.last_name, w.contact, w.email, w.experience, s.service_name
+        ORDER BY rating DESC
     ";
 }
 
@@ -57,11 +86,30 @@ if ($result->num_rows > 0) {
                 </svg>
                 Service: {$row['service_name']}
             </div>
-            <div class='rating'>
-                <svg class='icon' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='#ffbf00'>
-                    <path d='M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z'/>
-                </svg>
-                {$row['rating']}
+            <div class='rating' style='display: flex; align-items: center; gap: 8px;'>
+                <div style='display: flex; gap: 2px;'>";
+        // Generate stars based on rating
+        $rating = floatval($row['rating']);
+        $ratingColor = 'text-gray-300'; // Default color for 0 rating
+        if ($rating >= 4.0) {
+            $ratingColor = 'text-green-500'; // Green for high ratings
+        } elseif ($rating >= 2.5) {
+            $ratingColor = 'text-yellow-400'; // Yellow for medium ratings
+        } elseif ($rating > 0) {
+            $ratingColor = 'text-red-500'; // Red for low ratings
+        }
+
+        for ($i = 1; $i <= 5; $i++) {
+            if ($i <= $rating) {
+                echo "<i class='fas fa-star {$ratingColor}'></i>";
+            } else {
+                echo "<i class='far fa-star text-gray-300'></i>";
+            }
+        }
+        echo "</div>
+                <div class='{$ratingColor} text-sm font-bold'>
+                    {$row['rating']} <span class='text-gray-400 font-normal'>({$row['total_ratings']} rating" . ($row['total_ratings'] !== '1' ? 's' : '') . ")</span>
+                </div>
             </div>
         </div>";
     }
@@ -71,3 +119,5 @@ if ($result->num_rows > 0) {
 
 $conn->close();
 ?>
+</body>
+</html>
