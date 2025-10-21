@@ -88,16 +88,10 @@ while ($row = $result->fetch_assoc()) {
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #d97f3e;
-            --secondary-color: #151010;
-        }
-
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(217, 127, 62, 0.1);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .booking-card {
@@ -106,18 +100,16 @@ while ($row = $result->fetch_assoc()) {
 
         .booking-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(217, 127, 62, 0.1);
         }
 
         .star {
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: color 0.2s ease;
         }
 
         .star:hover,
         .star.active {
-            color: var(--primary-color);
-            transform: scale(1.1);
+            color: #fbbf24;
         }
 
         @keyframes slideUp {
@@ -136,29 +128,8 @@ while ($row = $result->fetch_assoc()) {
         }
 
         .tab-active {
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            color: white !important;
-        }
-
-        .tab-button {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tab-button::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .tab-button:hover::after {
-            transform: scaleX(1);
+            border-bottom: 3px solid #f97316;
+            color: #f97316;
         }
         
     </style>
@@ -166,18 +137,33 @@ while ($row = $result->fetch_assoc()) {
 <body class="bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
     <?php include '../includes/header.php'; ?>
 
-    <!-- Main Content Container -->
+                <div class="flex items-center space-x-4">
+                    <div class="relative group">
+                       
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
+                            <a href="profile.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+                            <a href="my_bookings.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Bookings</a>
+                            <hr class="my-1">
+                            <a href="../..logout.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+        
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Page Header with Navigation -->
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <div class="flex items-center gap-4">
-                <a href="/FixExpress/PWA/index.php" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#d97f3e] to-[#151010] text-white rounded-lg shadow hover:opacity-90 transition-opacity">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                    </svg>
-                    Home
-                </a>
-                <h1 class="text-3xl font-bold text-gray-800">My Bookings</h1>
+        <h1 class="text-4xl font-bold text-gray-800 mb-8">My Bookings</h1>
+
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <div class="relative">
+                <input type="text" id="searchInput" 
+                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    placeholder="Search by service name or status...">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
             </div>
         </div>
 
@@ -187,7 +173,7 @@ while ($row = $result->fetch_assoc()) {
                 All Bookings
             </button>
             <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="recent">
-                Recent
+                Pending
             </button>
             <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="current">
                 Current
