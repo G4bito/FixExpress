@@ -36,9 +36,9 @@ if ($user_id) {
 
 <!-- Header -->
 <header class="header">
-    <a href="#" class="logo">
+    <a href="/FixExpress/PWA/index.php" class="logo">
         <div class="logo-icon">
-            <img src="" alt="FixExpress Logo">
+            <img src="/FixExpress/PWA/dist/assets/images/logo.png" alt="FixExpress Logo">
         </div>
         <span>FixExpress</span>
     </a>

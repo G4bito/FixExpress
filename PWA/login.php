@@ -10,63 +10,78 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = trim($_POST['password']);
 
     // --- Check if admin ---
-    $adminQuery = "SELECT * FROM admin_accounts WHERE username = ? AND password = MD5(?)";
+    $adminQuery = "SELECT * FROM admin_accounts WHERE username = ?";
     $adminStmt = $conn->prepare($adminQuery);
-    $adminStmt->bind_param("ss", $username, $password);
+    $adminStmt->bind_param("s", $username);
     $adminStmt->execute();
     $adminResult = $adminStmt->get_result();
 
     if ($adminResult->num_rows === 1) {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_username'] = $username;
-        header("Location: ./dist/admin/bookings.php");
-        exit;
+        $admin = $adminResult->fetch_assoc();
+        // Check if password is stored in MD5 format
+        if ($admin['password'] === MD5($password) || password_verify($password, $admin['password'])) {
+            // If using old MD5, update to new password_hash
+            if ($admin['password'] === MD5($password)) {
+                $newHash = password_hash($password, PASSWORD_DEFAULT);
+                $updateStmt = $conn->prepare("UPDATE admin_accounts SET password = ? WHERE username = ?");
+                $updateStmt->bind_param("ss", $newHash, $username);
+                $updateStmt->execute();
+            }
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_username'] = $username;
+            header("Location: ./dist/admin/bookings.php");
+            exit;
+        }
     }
 
     // --- Check if worker ---
-    $workerQuery = "SELECT * FROM workers WHERE username = ? AND password = MD5(?)";
+    $workerQuery = "SELECT * FROM workers WHERE username = ?";
     $workerStmt = $conn->prepare($workerQuery);
-    $workerStmt->bind_param("ss", $username, $password);
+    $workerStmt->bind_param("s", $username);
     $workerStmt->execute();
     $workerResult = $workerStmt->get_result();
 
     if ($workerResult->num_rows === 1) {
         $worker = $workerResult->fetch_assoc();
+        if (password_verify($password, $worker['password'])) {
+            // Check worker status before login
+            if ($worker['status'] === 'Pending') {
+                $error = "Your account is waiting for admin approval.";
+            } elseif ($worker['status'] === 'Rejected') {
+                $error = "Your application has been rejected.";
+            } elseif ($worker['status'] === 'Approved') {
+                $_SESSION['worker_logged_in'] = true;
+                $_SESSION['worker_id'] = $worker['worker_id'];
+                $_SESSION['worker_name'] = $worker['username'];
 
-        // Check worker status before login
-        if ($worker['status'] === 'Pending') {
-            $error = "Your account is waiting for admin approval.";
-        } elseif ($worker['status'] === 'Rejected') {
-            $error = "Your application has been rejected.";
-        } elseif ($worker['status'] === 'Approved') {
-            $_SESSION['worker_logged_in'] = true;
-            $_SESSION['worker_id'] = $worker['worker_id'];
-            $_SESSION['worker_name'] = $worker['username'];
-
-            // ✅ Redirect approved workers to workers.php
-            header("Location: ./workers.php");
-            exit;
-        } else {
-            $error = "Invalid worker status. Please contact support.";
+                // ✅ Redirect approved workers to workers.php
+                header("Location: ./workers.php");
+                exit;
+            } else {
+                $error = "Invalid worker status. Please contact support.";
+            }
         }
     }
 
     // --- Check if regular user ---
-    $userQuery = "SELECT * FROM users WHERE username = ? AND password = MD5(?)";
+    $userQuery = "SELECT * FROM users WHERE username = ?";
     $userStmt = $conn->prepare($userQuery);
-    $userStmt->bind_param("ss", $username, $password);
+    $userStmt->bind_param("s", $username);
     $userStmt->execute();
     $userResult = $userStmt->get_result();
-
+    
     if ($userResult->num_rows === 1) {
-        $_SESSION['user_logged_in'] = true;
-        $_SESSION['username'] = $username;
-        header("Location: ./index.php");
-        exit;
-    } else {
-        if (empty($error)) {
-            $error = "Invalid username or password.";
+        $user = $userResult->fetch_assoc();
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['user_logged_in'] = true;
+            $_SESSION['username'] = $username;
+            header("Location: ./index.php");
+            exit;
         }
+    }
+    
+    if (empty($error)) {
+        $error = "Invalid username or password.";
     }
 }
 ?>

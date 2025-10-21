@@ -373,7 +373,7 @@ if ($result && $result->num_rows > 0) {
       <div class="footer-box">
         <h3>Quick Links</h3>
         <ul>
-          <li><a href="#">About Us</a></li>
+          <li><a href="./dist/user/about.php">About Us</a></li>
           <li><a href="#services">Services</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
           <li><a href="#contact">Contact</a></li>
