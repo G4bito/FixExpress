@@ -64,17 +64,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if ($userResult->num_rows === 1) {
         $user = $userResult->fetch_assoc();
+        // Debug information
+        error_log("Login attempt for username: " . $username);
+        error_log("Password verification attempt using PASSWORD_DEFAULT");
+        error_log("Stored password hash: " . $user['password']);
+        
         // Check password using modern hashing, with a fallback to MD5 for older accounts
-        if (password_verify($password, $user['password']) || md5($password) === $user['password']) {
+        if (password_verify($password, $user['password'])) {
+            error_log("Password verified successfully using PASSWORD_DEFAULT");
             $_SESSION['user_logged_in'] = true;
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
             header("Location: ./index.php");
             exit;
+        } elseif (md5($password) === $user['password']) {
+            error_log("Password verified successfully using MD5");
+            $_SESSION['user_logged_in'] = true;
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['username'] = $user['username'];
+            header("Location: ./index.php");
+            exit;
+        } else {
+            error_log("Password verification failed for both methods");
+            $error = "Invalid password.";
         }
     } else {
         if (empty($error)) {
-            $error = "Invalid username or password.";
+            error_log("No user found with username: " . $username);
+            $error = "Username not found.";
         }
     }
     

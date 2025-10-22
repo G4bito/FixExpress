@@ -525,8 +525,8 @@ session_start();
 
     <!-- Hero Section -->
     <section class="about-hero">
-        <h1>About FixExpress</h1>
-        <p>Connecting you with skilled professionals for all your service needs since 2023</p>
+        <h1>FixExpress</h1>
+        <p>Connecting you with skilled professionals for all your service needs since 2025</p>
     </section>
 
     <!-- Our Story Section -->
@@ -682,9 +682,9 @@ session_start();
                         Creative designer focused on creating intuitive and beautiful user experiences for our platform.
                     </p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.facebook.com/zyrelgabriel.maningding" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/itsmezyyy.11/" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/gabgab112005" title="GitHub"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
             </div>
@@ -697,9 +697,9 @@ session_start();
                         Expert backend developer ensuring robust and scalable infrastructure for seamless service delivery.
                     </p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.facebook.com/charles.gervacio.37/" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/woopiepoowie/" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/charlesgervacio1124" title="GitHub"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
             </div>
@@ -709,12 +709,12 @@ session_start();
                     <h3 class="team-name">Loraine R. Gonzales</h3>
                     <div class="team-role">System Analyst</div>
                     <p class="team-bio">
-                        Dedicated to ensuring the best experience for both our customers and service providers.
+                        Analyzes and improves system performance to enhance efficiency and reliability. Works closely with teams to align technical solutions with business goals.
                     </p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.facebook.com/lorininin?mibextid=ZbWKwL" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/loriiinnnn?igsh=MWpsN291ODVjNHE3dQ==" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/loraine18" title="GitHub"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
             </div>
@@ -724,12 +724,12 @@ session_start();
                     <h3 class="team-name">John Patrick B. Aquino</h3>
                     <div class="team-role">Project Manager</div>
                     <p class="team-bio">
-                        Dedicated to ensuring the best experience for both our customers and service providers.
+                        Oversees projects from start to finish to ensure timely and successful delivery. Encourages collaboration and maintains clear communication across all teams.
                     </p>
                     <div class="social-links">
-                        <a href="#"><i class="fab fa-github"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.facebook.com/share/17gQKgU7w4/" title="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/dj.pat4?igsh=ZDY0azhzcHFmZGtl" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/dpatrick04" title="GitHub"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
             </div>

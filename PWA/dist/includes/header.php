@@ -74,23 +74,26 @@ if ($user_id) {
 <div id="profileModal" class="profile-modal">
     <div class="profile-content">
         <h2>Edit Profile</h2>
-        <form method="POST" action="">
-            <input type="hidden" name="update_profile" value="1">
+        <form id="profileUpdateForm">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="fullname" value="<?php echo htmlspecialchars(($first_name ?? '') . ' ' . ($last_name ?? '')); ?>" required>
+            </div>
 
-            <label>First Name</label>
-            <input type="text" name="first_name" value="<?php echo htmlspecialchars($first_name ?? ''); ?>" required>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" value="<?php echo htmlspecialchars($username ?? ''); ?>" required>
+            </div>
 
-            <label>Last Name</label>
-            <input type="text" name="last_name" value="<?php echo htmlspecialchars($last_name ?? ''); ?>" required>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" required>
+            </div>
 
-            <label>Username</label>
-            <input type="text" name="username" value="<?php echo htmlspecialchars($username ?? ''); ?>" required>
-
-            <label>Email</label>
-            <input type="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" required>
-
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Enter new password (optional)">
+            <div class="form-group">
+                <label>New Password (optional)</label>
+                <input type="password" name="password" placeholder="Leave blank to keep current password">
+            </div>
 
             <div class="profile-actions">
                 <button type="submit" class="save-btn">Save Changes</button>
@@ -115,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const viewProfileBtn = document.getElementById("viewProfile");
     const profileModal = document.getElementById("profileModal");
     const closeModalBtn = document.getElementById("closeModalBtn");
+    const profileUpdateForm = document.getElementById("profileUpdateForm");
 
     if(viewProfileBtn) {
         viewProfileBtn.addEventListener("click", function(e) {
@@ -126,6 +130,31 @@ document.addEventListener("DOMContentLoaded", function() {
     if(closeModalBtn) {
         closeModalBtn.addEventListener("click", function() {
             profileModal.style.display = "none";
+        });
+    }
+
+    if(profileUpdateForm) {
+        profileUpdateForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/FixExpress/PWA/dist/database/update_user_profile.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert('Profile updated successfully!');
+                    location.reload(); // Reload to update displayed information
+                } else {
+                    alert(data.message || 'Failed to update profile');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating profile');
+            });
         });
     }
 

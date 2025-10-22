@@ -165,8 +165,8 @@
         .hero-description {
             color: #2c2c2c;
             font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 40px;
+            line-height: 1.8;
+            margin-bottom: 50px;
         }
 
         .hero-buttons {
@@ -1346,3 +1346,4 @@
   font-weight: bold;
   color: #ffcc00;
 }
+
