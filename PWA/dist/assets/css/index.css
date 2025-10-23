@@ -872,7 +872,6 @@
   transition: all 0.6s ease;
   transform-style: preserve-3d;
 }
-
 /* Text */
 .feedback-bubble p {
   font-size: 1.05rem;
@@ -905,16 +904,7 @@
   color: #ffcc80;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .feedback-showcase {
-    flex-direction: column;
-  }
-  .bubble-center, .bubble-left, .bubble-right {
-    transform: none !important;
-    opacity: 1;
-  }
-}
+
 
 /* ===== Footer Styling ===== */
 .footer {
@@ -1346,4 +1336,3 @@
   font-weight: bold;
   color: #ffcc00;
 }
-
