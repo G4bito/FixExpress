@@ -46,7 +46,6 @@ if ($user_id) {
         <a href="#services">Services</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#feedback">Feedback</a>
-        <a href="#contact">Contact</a>
         <a href="/FixExpress/PWA/dist/admin/website_ratings.php">Website Ratings</a>
     </nav>
     <div class="auth-buttons">
@@ -76,10 +75,13 @@ if ($user_id) {
         <h2>Edit Profile</h2>
         <form id="profileUpdateForm">
             <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" name="fullname" value="<?php echo htmlspecialchars(($first_name ?? '') . ' ' . ($last_name ?? '')); ?>" required>
+                <label>First Name</label>
+                <input type="text" name="firstname" value="<?php echo htmlspecialchars(($first_name ?? '')); ?>" required>
             </div>
-
+            <div class="form-group">
+                <label>Last Name</label>
+                <input type="text" name="lastname" value="<?php echo htmlspecialchars(($last_name ?? '')); ?>" required>
+            </div>
             <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" value="<?php echo htmlspecialchars($username ?? ''); ?>" required>
