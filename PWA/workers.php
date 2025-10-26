@@ -676,8 +676,9 @@ body {
 
 .status-pending-badge { background: #fff3cd; color: #856404; }
 .status-confirmed-badge { background: #d1ecf1; color: #0c5460; }
+.status-approved-badge { background: #d1ecf1; color: #0c5460; }
 .status-completed-badge { background: #d4edda; color: #155724; }
-.status-cancellation-requested-badge { background: #f8d7da; color: #721c24; }
+.status-cancellation-requested-badge { background: #fff3cd; color: #856404; }
 .status-cancelled-badge { background: #f8d7da; color: #721c24; }
 
 .price-tag {
@@ -1101,9 +1102,9 @@ html {
         <div class="bookings-grid" id="bookingsGrid">
             <?php foreach($bookings as $booking): ?>
             <div class="booking-card" data-status="<?php echo htmlspecialchars($booking['status']); ?>" data-booking-id="<?php echo (int)$booking['booking_id']; ?>">
-                <div class="booking-status-indicator status-<?php echo htmlspecialchars($booking['status']); ?>">
+            <div class="booking-status-indicator status-<?php echo str_replace(' ', '-', htmlspecialchars($booking['status'])); ?>">
                     <?php 
-                        $icons = ['pending'=>'⏳','approved'=>'✓','completed'=>'✔','cancelled'=>'✗', 'cancellation requested' => '❓'];
+                        $icons = ['pending'=>'⏳','approved'=>'✓','completed'=>'✔','cancelled'=>'✗', 'cancellation requested' => '⚠️'];
                         echo $icons[$booking['status']] ?? '';
                     ?>
                 </div>
@@ -1112,7 +1113,7 @@ html {
     <?php echo htmlspecialchars($booking['service_name'] ?? 'Unknown Service'); ?>
 </h3>
 
-                    <span class="status-badge status-<?php echo htmlspecialchars($booking['status']); ?>-badge">
+                <span class="status-badge status-<?php echo str_replace(' ', '-', htmlspecialchars($booking['status'])); ?>-badge">
                         <?php echo ucfirst(htmlspecialchars($booking['status'])); ?>
                     </span>
                     <div class="booking-info">
@@ -1134,6 +1135,7 @@ html {
                     <?php elseif($booking['status'] === 'approved'): ?>
                         <button class="btn-action btn-complete" onclick="completeBooking(<?php echo (int)$booking['booking_id']; ?>)">Mark Complete</button>
                         <button class="btn-action btn-view" onclick="viewDetails(<?php echo (int)$booking['booking_id']; ?>)">View Details</button>
+                        <button class="btn-action btn-decline" onclick="showDeclineModal(<?php echo (int)$booking['booking_id']; ?>)">Cancel</button>
                     <?php elseif($booking['status'] === 'cancellation requested'): ?>
                         <button class="btn-action btn-accept" onclick="approveCancellation(<?php echo (int)$booking['booking_id']; ?>)">Approve Cancel</button>
                         <button class="btn-action btn-view" onclick="viewDetails(<?php echo (int)$booking['booking_id']; ?>)">View Details</button>

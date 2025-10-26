@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = $conn->real_escape_string($_POST['status'] ?? '');
     
     // Validate status
-    $valid_statuses = ['Pending', 'Approved', 'Completed', 'Cancelled'];
+    $valid_statuses = ['Pending', 'Approved', 'Completed', 'Cancelled', 'Cancellation Requested'];
     if (!in_array($status, $valid_statuses)) {
         die("Invalid status");
     }

@@ -810,6 +810,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                         <select class="form-select" name="status" id="editBookingStatus" required>
                             <option value="Pending">Pending</option>
                             <option value="Approved">Approved</option>
+                            <option value="Cancellation Requested">Cancellation Requested</option>
                             <option value="Completed">Completed</option>
                             <option value="Cancelled">Cancelled</option>
                         </select>
