@@ -1,8 +1,30 @@
 <?php
+session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 include '../database/server.php';
+
+// --- User data fetching ---
+$user_logged_in = isset($_SESSION['user_id']);
+$user_fullname = '';
+$user_email = '';
+
+if ($user_logged_in) {
+    $user_id = $_SESSION['user_id'];
+    $userQuery = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE user_id = ?");
+    if ($userQuery) {
+        $userQuery->bind_param("i", $user_id);
+        $userQuery->execute();
+        $userResult = $userQuery->get_result();
+        if ($user = $userResult->fetch_assoc()) {
+            $user_fullname = trim($user['first_name'] . ' ' . $user['last_name']);
+            $user_email = $user['email'];
+        }
+        $userQuery->close();
+    }
+}
+// --- End of user data fetching ---
 
 if (!isset($_GET['id'])) {
   die("No service selected.");
@@ -459,23 +481,34 @@ $row = $result->fetch_assoc();
 
       <form id="bookingForm" method="POST" action="submit_booking.php">
         <input type="hidden" name="worker_id" id="workerId">
+        <input type="hidden" name="service_id" value="<?php echo $id; ?>">
         
 
         <div class="form-group">
           <label>Full Name</label>
-        <input type="text" name="fullname" placeholder="Enter your full name" required pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" title="Please enter a valid full name (e.g., Charles D. Gervacio)">
+        <input type="text" name="fullname" placeholder="Enter your full name" required 
+               value="<?php echo htmlspecialchars($user_fullname); ?>" 
+               <?php if ($user_logged_in) echo 'readonly'; ?>
+               pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" 
+               title="Please enter a valid full name (e.g., Charles D. Gervacio)">
 
         </div>
 
         <div class="form-group">
           <label>Contact Number</label>
-          <input type="text" name="contact" maxlength="13" placeholder="e.g. 09123456789 or +639123456789" required pattern="^(09\d{9}|\+639\d{9})$" title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
+          <input type="text" name="contact" maxlength="13" 
+                 placeholder="e.g. 09123456789 or +639123456789" required 
+                 pattern="^(09\d{9}|\+639\d{9})$" 
+                 title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
 
         </div>
 
         <div class="form-group">
           <label>Email Address</label>
-          <input type="text" id="email" name="email" placeholder="you@example.com" required title="Please enter a valid email ending with .com or .com.ph (e.g., name@example.com or name@example.com.ph)">
+          <input type="text" id="email" name="email" placeholder="you@example.com" required 
+                 value="<?php echo htmlspecialchars($user_email); ?>"
+                 <?php if ($user_logged_in) echo 'readonly'; ?>
+                 title="Please enter a valid email ending with .com or .com.ph (e.g., name@example.com or name@example.com.ph)">
         </div>
 
         <div class="form-group">
@@ -517,7 +550,15 @@ $row = $result->fetch_assoc();
   </div>
 
   <script>
+const userLoggedIn = <?php echo json_encode($user_logged_in); ?>;
+
 function openModal(workerId) {
+  if (!userLoggedIn) {
+    // User is not logged in, redirect to login page
+    alert('Please log in or sign up to book a service.');
+    window.location.href = '../../login.php'; // Adjust path to your login page
+    return;
+  }
   document.getElementById('bookingModal').style.display = 'flex';
   document.getElementById('workerId').value = workerId;
 }
