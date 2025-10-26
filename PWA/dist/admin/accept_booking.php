@@ -13,12 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     error_log('Content-Type: ' . $_SERVER['CONTENT_TYPE']);
     
     $booking_id = isset($_POST['booking_id']) ? intval($_POST['booking_id']) : 0;
+    $price = isset($_POST['price']) ? floatval($_POST['price']) : null;
     error_log('Parsed booking_id: ' . $booking_id);
     
-    if ($booking_id <= 0) {
+    if ($booking_id <= 0 || $price === null) {
         echo json_encode([
             'success' => false, 
-            'message' => 'Invalid booking ID: ' . $booking_id,
+            'message' => 'Invalid booking ID or missing price.',
             'debug' => ['received' => $_POST]
         ]);
         exit;
@@ -48,8 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Update the booking status to Approved
-    $stmt = $conn->prepare("UPDATE bookings SET status = 'Approved' WHERE booking_id = ? AND status = 'Pending'");
-    $stmt->bind_param("i", $booking_id);
+    $stmt = $conn->prepare("UPDATE bookings SET status = 'Approved', price = ? WHERE booking_id = ? AND status = 'Pending'");
+    $stmt->bind_param("di", $price, $booking_id);
     
     if ($stmt->execute()) {
         if ($stmt->affected_rows > 0) {

@@ -479,7 +479,7 @@ $row = $result->fetch_assoc();
       <h3>Book This Professional</h3>
       <p class="modal-subtitle">Fill in your details and the worker will contact you soon.</p>
 
-      <form id="bookingForm" method="POST" action="submit_booking.php">
+      <form id="bookingForm" method="POST" action="submit_booking.php" enctype="multipart/form-data">
         <input type="hidden" name="worker_id" id="workerId">
         <input type="hidden" name="service_id" value="<?php echo $id; ?>">
         
@@ -533,7 +533,12 @@ $row = $result->fetch_assoc();
           <textarea name="notes" placeholder="Please describe your problem in detail..." required></textarea>
         </div>
 
-        <div style="margin-top: -10px; text-align: center;">
+        <div class="form-group" style="margin-top: -10px;">
+          <label>Upload Image or Video of Problem</label>
+          <input type="file" name="problem_image" accept="image/*,video/mp4,video/quicktime,video/webm" style="padding: 10px; border: 1px solid var(--border-light); border-radius: var(--border-radius-md); width: 100%; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
           <button type="submit" class="btn-book" style="padding: 12px 30px; font-size: 16px;">Confirm Booking</button>
         </div>
       </form>
