@@ -124,8 +124,8 @@ $result = $stmt->get_result();
 $bookings = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Count bookings by status
-$stats = ['pending'=>0,'approved'=>0,'completed'=>0];
+// Count bookings by status, including the new 'cancellation requested' status
+$stats = ['pending'=>0,'approved'=>0,'completed'=>0, 'cancellation requested' => 0];
 foreach ($bookings as &$b) {
     $status = strtolower($b['status'] ?? 'pending');
     if ($status === 'confirmed') $status = 'approved'; // Normalize 'confirmed' to 'approved'
@@ -712,6 +712,7 @@ body {
 .status-pending { background: #fff3cd; }
 .status-confirmed { background: #d1ecf1; }
 .status-completed { background: #d4edda; }
+.status-cancellation-requested { background: #ffe8e6; }
 .status-cancelled { background: #f8d7da; }
 
 /* BOOKING DETAILS */
@@ -779,6 +780,7 @@ body {
 .status-pending-badge { background: #fff3cd; color: #856404; }
 .status-confirmed-badge { background: #d1ecf1; color: #0c5460; }
 .status-completed-badge { background: #d4edda; color: #155724; }
+.status-cancellation-requested-badge { background: #f8d7da; color: #721c24; }
 .status-cancelled-badge { background: #f8d7da; color: #721c24; }
 
 .price-tag {
@@ -1106,6 +1108,11 @@ html {
             <div class="stat-value"><?php echo $stats['completed']; ?></div>
             <div class="stat-label">Total Jobs Done</div>
         </div>
+        <div class="stat-card" onclick="filterBookings('cancellation requested', event)">
+            <h3>Cancellation Requests</h3>
+            <div class="stat-value"><?php echo $stats['cancellation requested']; ?></div>
+            <div class="stat-label">Action Required</div>
+        </div>
         <div class="stat-card cursor-pointer" onclick="showRatings()">
             <h3>Rating</h3>
             <div class="stat-value"><?= $averageRating ?>⭐</div>
@@ -1189,6 +1196,7 @@ html {
                 <button class="filter-tab" data-filter="pending" onclick="filterBookings('pending', event)">Pending</button>
                 <button class="filter-tab" data-filter="approved" onclick="filterBookings('approved', event)">Approved</button>
                 <button class="filter-tab" data-filter="completed" onclick="filterBookings('completed', event)">Completed</button>
+                <button class="filter-tab" data-filter="cancellation requested" onclick="filterBookings('cancellation requested', event)">Requests</button>
                 <button class="filter-tab" data-filter="cancelled" onclick="filterBookings('cancelled', event)">Cancelled</button>
             </div>
         </div>
@@ -1198,7 +1206,7 @@ html {
             <div class="booking-card" data-status="<?php echo htmlspecialchars($booking['status']); ?>" data-booking-id="<?php echo (int)$booking['booking_id']; ?>">
                 <div class="booking-status-indicator status-<?php echo htmlspecialchars($booking['status']); ?>">
                     <?php 
-                        $icons = ['pending'=>'⏳','approved'=>'✓','completed'=>'✔','cancelled'=>'✗'];
+                        $icons = ['pending'=>'⏳','approved'=>'✓','completed'=>'✔','cancelled'=>'✗', 'cancellation requested' => '❓'];
                         echo $icons[$booking['status']] ?? '';
                     ?>
                 </div>
@@ -1216,14 +1224,21 @@ html {
                         <div><strong>Time:</strong> <?php echo htmlspecialchars($booking['time']); ?></div>
                         <div><strong>Location:</strong> <?php echo htmlspecialchars($booking['address']); ?></div>
                     </div>
-                    <div class="price-tag"><?php echo htmlspecialchars($booking['price']); ?></div>
+                    <?php if (isset($booking['price']) && (float)$booking['price'] > 0): ?>
+                        <div class="price-tag" style="margin-top: 10px; font-size: 1.2rem;">
+                            Price: ₱<?= htmlspecialchars(number_format($booking['price'], 2)) ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="booking-actions">
                     <?php if($booking['status'] === 'pending'): ?>
-                        <button class="btn-action btn-accept" onclick="acceptBooking(<?php echo (int)$booking['booking_id']; ?>)">Accept</button>
+                        <button class="btn-action btn-accept" onclick="showApproveModal(<?php echo (int)$booking['booking_id']; ?>)">Accept</button>
                         <button class="btn-action btn-decline" onclick="showDeclineModal(<?php echo (int)$booking['booking_id']; ?>)">Decline</button>
                     <?php elseif($booking['status'] === 'approved'): ?>
                         <button class="btn-action btn-complete" onclick="completeBooking(<?php echo (int)$booking['booking_id']; ?>)">Mark Complete</button>
+                        <button class="btn-action btn-view" onclick="viewDetails(<?php echo (int)$booking['booking_id']; ?>)">View Details</button>
+                    <?php elseif($booking['status'] === 'cancellation requested'): ?>
+                        <button class="btn-action btn-accept" onclick="approveCancellation(<?php echo (int)$booking['booking_id']; ?>)">Approve Cancel</button>
                         <button class="btn-action btn-view" onclick="viewDetails(<?php echo (int)$booking['booking_id']; ?>)">View Details</button>
                     <?php else: ?>
                         <button class="btn-action btn-view" onclick="viewDetails(<?php echo (int)$booking['booking_id']; ?>)">View Details</button>
@@ -1264,6 +1279,29 @@ html {
     </form>
   </div>
 </div>
+
+<!-- Approve Booking Modal -->
+<div id="approveModal" class="profile-modal">
+  <div class="profile-modal-content" style="max-width: 650px;">
+    <span class="close-btn" id="closeApproveModal">&times;</span>
+    <h2>Approve Booking & Set Price</h2>
+    <div id="approveBookingDetailsContent" style="margin-top: 20px; max-height: 40vh; overflow-y: auto; padding-right: 15px;">
+      <!-- Booking details will be populated here -->
+    </div>
+    <form id="approveForm" style="margin-top: 20px;">
+      <input type="hidden" id="approveBookingId" name="booking_id">
+      <div class="profile-field">
+        <label for="bookingPrice">Estimated Price (₱):</label>
+        <input type="number" id="bookingPrice" name="price" required class="form-control" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" placeholder="e.g., 1500.00" step="0.01" min="0">
+      </div>
+      <div class="profile-actions" style="margin-top: 30px;">
+        <button type="submit" class="save-btn">Confirm & Approve</button>
+        <button type="button" class="close-btn-secondary" id="cancelApproveBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
 <!-- View Details Modal -->
 <div id="viewDetailsModal" class="profile-modal">
@@ -1467,56 +1505,6 @@ function updateCounter(input, counterId, maxLength) {
 // no page reload 
 document.querySelector('.worker-icon').textContent = document.getElementById('username').value.trim().charAt(0).toUpperCase();
 
-// Booking acceptance function
-function acceptBooking(bookingId) {
-    if (!confirm('Are you sure you want to accept this booking?')) return;
-
-    console.log('Accepting booking:', bookingId);
-    
-    fetch('./dist/admin/accept_booking.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
-        },
-        body: new URLSearchParams({
-            'booking_id': bookingId
-        })
-    })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.text().then(text => {
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                console.error('Error parsing JSON:', text);
-                throw new Error('Invalid JSON response from server');
-            }
-        });
-    })
-    .then(data => {
-        console.log('Response data:', data);
-        if (data.success) {
-            alert('Booking accepted successfully!');
-            // Update the UI
-            const bookingCard = document.querySelector(`.booking-card[data-booking-id="${bookingId}"]`);
-            if (bookingCard) {
-                bookingCard.querySelector('.status-badge').textContent = 'Approved';
-                bookingCard.querySelector('.status-badge').className = 'status-badge status-approved-badge';
-                bookingCard.setAttribute('data-status', 'approved');
-                // Refresh the page to update statistics
-                location.reload();
-            }
-        } else {
-            alert('Failed to accept booking: ' + (data.message || 'Unknown error'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while processing your request. Check the browser console for details.');
-    });
-}
-
 // Booking rejection function
 function showDeclineModal(bookingId) {
     const declineModal = document.getElementById('declineModal');
@@ -1586,6 +1574,112 @@ function showDeclineModal(bookingId) {
             alert('An error occurred while processing your request.');
         });
     };
+}
+
+// Approve booking with price modal
+function showApproveModal(bookingId) {
+    const approveModal = document.getElementById('approveModal');
+    const detailsContent = document.getElementById('approveBookingDetailsContent');
+    const bookingIdInput = document.getElementById('approveBookingId');
+    const approveForm = document.getElementById('approveForm');
+
+    // Show loading state and modal
+    detailsContent.innerHTML = '<p style="text-align: center; padding: 20px;">Loading booking details...</p>';
+    approveModal.classList.add('show');
+    bookingIdInput.value = bookingId;
+
+    // Fetch details (reusing viewDetails logic)
+    fetch('./dist/admin/get_booking_details.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'booking_id=' + bookingId
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // This is a simplified view for the approval modal
+            const booking = data.booking;
+            let problemMediaHtml = '';
+            if (booking.problem_image_path) {
+                const mediaPath = `./${booking.problem_image_path}`;
+                const isVideo = ['mp4', 'webm', 'mov'].includes(mediaPath.split('.').pop().toLowerCase());
+                problemMediaHtml = isVideo 
+                    ? `<video src="${mediaPath}" controls style="max-width: 100%; border-radius: 8px; margin-top: 10px;"></video>`
+                    : `<img src="${mediaPath}" alt="Problem Image" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">`;
+            }
+            detailsContent.innerHTML = `
+                <p><strong>Customer:</strong> ${booking.fullname}</p>
+                <p><strong>Address:</strong> ${booking.address}</p>
+                <p><strong>Problem:</strong></p>
+                <p style="white-space: pre-wrap; background: #f1f1f1; padding: 10px; border-radius: 5px;">${booking.notes || 'N/A'}</p>
+                ${problemMediaHtml}
+            `;
+        } else {
+            detailsContent.innerHTML = '<p style="color: red;">Could not load booking details.</p>';
+        }
+    }).catch(() => {
+        detailsContent.innerHTML = '<p style="color: red;">Error fetching details.</p>';
+    });
+
+    // Form submission handler
+    approveForm.onsubmit = (e) => {
+        e.preventDefault();
+        const price = document.getElementById('bookingPrice').value;
+        if (!price || price < 0) {
+            alert('Please enter a valid estimated price.');
+            return;
+        }
+
+        fetch('./dist/admin/accept_booking.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ 'booking_id': bookingId, 'price': price })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Booking approved successfully with the estimated price!');
+                location.reload();
+            } else {
+                alert('Failed to approve booking: ' + (data.message || 'Unknown error'));
+            }
+        }).catch(error => console.error('Error:', error));
+    };
+
+    // Close modal handlers
+    const closeModal = () => approveModal.classList.remove('show');
+    document.getElementById('closeApproveModal').onclick = closeModal;
+    document.getElementById('cancelApproveBtn').onclick = closeModal;
+    approveModal.onclick = (e) => { if (e.target === approveModal) closeModal(); };
+}
+
+// Approve cancellation request
+function approveCancellation(bookingId) {
+    if (!confirm('Are you sure you want to approve this cancellation request? The booking will be cancelled.')) return;
+
+    fetch('./dist/admin/approve_cancellation.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ 'booking_id': bookingId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Cancellation approved.');
+            location.reload();
+        } else {
+            alert('Failed to approve cancellation: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing the request.');
+    });
+}
+
+function denyCancellation(bookingId) {
+    // Future implementation: A modal could pop up to ask why, or just revert status.
+    alert('Deny cancellation functionality can be added here.');
 }
 
 // Filter bookings function
@@ -1852,6 +1946,7 @@ async function viewDetails(bookingId) {
                 'pending': 'warning',
                 'approved': 'info',
                 'completed': 'success',
+                'cancellation requested': 'danger',
                 'cancelled': 'danger'
             }[booking.status.toLowerCase()] || 'secondary';
 
@@ -1863,6 +1958,26 @@ async function viewDetails(bookingId) {
                         <p style="color: #721c24;">${booking.decline_reason}</p>
                     </div>
                 `;
+            }
+
+            if (booking.status.toLowerCase() === 'cancellation requested' && booking.cancellation_reason) {
+                declineReasonHtml = `
+                    <div class="detail-group" style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+                        <h4 style="color: #856404; margin-bottom: 10px;">Customer's Reason for Cancellation:</h4>
+                        <p style="color: #856404;">${booking.cancellation_reason}</p>
+                    </div>
+                `;
+            }
+            
+            let problemMediaHtml = '';
+            if (booking.problem_image_path) {
+                const mediaPath = `./${booking.problem_image_path}`;
+                const isVideo = ['mp4', 'webm', 'mov'].includes(mediaPath.split('.').pop().toLowerCase());
+                if (isVideo) {
+                    problemMediaHtml = `<video src="${mediaPath}" controls style="max-width: 100%; border-radius: 8px; margin-top: 10px;"></video>`;
+                } else {
+                    problemMediaHtml = `<img src="${mediaPath}" alt="Problem Image" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">`;
+                }
             }
 
             bookingDetailsContent.innerHTML = `
@@ -1916,6 +2031,15 @@ async function viewDetails(bookingId) {
                     </div>
 
                     <hr style="border: none; border-top: 1px solid #eee; margin: 0;">
+
+                    <div class="detail-group" style="padding-bottom: 20px;">
+                        <h4 style="color: #333; margin-bottom: 15px; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
+                            Customer's Problem
+                        </h4>
+                        <div style="display: grid; gap: 10px;">
+                            <p style="white-space: pre-wrap;">${booking.notes || 'No problem description provided'}</p>
+                        </div>
+                    </div>
 
                     ${declineReasonHtml}
                 </div>

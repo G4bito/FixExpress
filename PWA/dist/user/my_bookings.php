@@ -261,6 +261,16 @@ while ($row = $result->fetch_assoc()) {
                             </div>
                         </div>
 
+        <!-- Price Section -->
+        <?php if (isset($booking['price']) && (float)$booking['price'] > 0): ?>
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600 font-medium">Estimated Price:</span>
+                    <span class="text-xl font-bold text-orange-600">₱<?= htmlspecialchars(number_format($booking['price'], 2)) ?></span>
+                </div>
+            </div>
+        <?php endif; ?>
+
                         <!-- Rating Section for Completed Bookings -->
                         <?php if ($booking['status'] == 'Completed'): ?>
                             <div class="mt-4 pt-4 border-t border-gray-200">
@@ -303,10 +313,17 @@ while ($row = $result->fetch_assoc()) {
                         <?php endif; ?>
 
                         <!-- View Details Button -->
-                        <button onclick="openDetailsModal(<?= htmlspecialchars(json_encode($booking)) ?>)" 
-                                class="mt-4 w-full bg-white border border-orange-500 text-orange-500 rounded-md py-2 hover:bg-orange-50 transition-colors">
-                            View Details
-                        </button>
+                        <div class="mt-6 flex space-x-2">
+                            <button onclick='openDetailsModal(<?= json_encode($booking, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' 
+                                    class="flex-1 bg-white border border-orange-500 text-orange-500 rounded-md py-2 hover:bg-orange-50 transition-colors">
+                                View Details
+                            </button>
+                            <?php if (in_array($booking['status'], ['Pending', 'Approved'])): ?>
+                                <button onclick="openCancelModal(<?= $booking['booking_id'] ?>)" class="flex-1 bg-orange-400 text-white rounded-md py-2 hover:bg-orange-500 transition-colors">
+                                    Cancel
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php endforeach; ?>
@@ -346,6 +363,13 @@ while ($row = $result->fetch_assoc()) {
                 <div>
                     <span class="font-medium text-gray-700 block mb-1">Problem: </span>
                     <p id="modalNotes" class="text-gray-600 bg-gray-50 p-3 rounded"></p>
+                    <div id="modalProblemMedia" class="mt-4"></div>
+                </div>
+
+                <!-- Uploaded Media -->
+                <div id="modalMediaContainer" class="hidden">
+                    <h3 class="font-medium text-gray-700 mb-2">Uploaded Media</h3>
+                    <div id="modalMediaContent"></div>
                 </div>
 
                 <!-- Professional Info -->
@@ -369,6 +393,31 @@ while ($row = $result->fetch_assoc()) {
                     Close
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Cancel Booking Modal -->
+    <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 transform transition-all">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Cancel Booking</h2>
+            <p class="text-gray-600 mb-4">Are you sure you want to cancel this booking? This action cannot be undone.</p>
+            
+            <form id="cancelForm">
+                <input type="hidden" id="cancelBookingId" name="booking_id">
+                <div class="mb-4">
+                    <label for="cancellationReason" class="block text-sm font-medium text-gray-700 mb-1">Reason for Cancellation (Optional)</label>
+                    <textarea id="cancellationReason" name="reason" rows="3" class="w-full p-2 border rounded-md" placeholder="e.g., Found another service, schedule conflict..."></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeCancelModal()" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">
+                        Nevermind
+                    </button>
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                        Confirm Cancellation
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -495,6 +544,19 @@ while ($row = $result->fetch_assoc()) {
                 
                 document.getElementById('modalLocation').textContent = booking.address || 'Not specified';
                 document.getElementById('modalNotes').textContent = booking.notes || 'No additional notes';
+
+                // Handle problem media
+                const mediaContainer = document.getElementById('modalProblemMedia');
+                mediaContainer.innerHTML = ''; // Clear previous media
+                if (booking.problem_image_path) {
+                    const mediaPath = `../../${booking.problem_image_path}`;
+                    const isVideo = ['mp4', 'webm', 'mov'].includes(mediaPath.split('.').pop().toLowerCase());
+                    if (isVideo) {
+                        mediaContainer.innerHTML = `<video src="${mediaPath}" controls style="max-width: 100%; border-radius: 8px; margin-top: 10px;"></video>`;
+                    } else {
+                        mediaContainer.innerHTML = `<img src="${mediaPath}" alt="Problem Image" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">`;
+                    }
+                }
                 
                 // Professional info
                 const professionalInfo = document.getElementById('modalProfessionalInfo');
@@ -542,9 +604,10 @@ while ($row = $result->fetch_assoc()) {
                     professionalInfo.innerHTML = '<p class="text-gray-500">No professional assigned yet</p>';
                 }
 
-                document.getElementById('modalPrice').textContent = booking.price ? 
-                    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'PHP' }).format(booking.price) : 
-                    'Price not set';
+                const priceValue = parseFloat(booking.price);
+                document.getElementById('modalPrice').textContent = (priceValue > 0)
+                    ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(priceValue)
+                    : 'Not yet set by professional';
 
                 // Show modal
                 modal.classList.remove('hidden');
@@ -562,6 +625,74 @@ while ($row = $result->fetch_assoc()) {
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     closeDetailsModal();
+                }
+            });
+
+            // Cancel Modal functionality
+            const cancelModal = document.getElementById('cancelModal');
+            const cancelForm = document.getElementById('cancelForm');
+            const cancelBookingIdInput = document.getElementById('cancelBookingId');
+
+            window.openCancelModal = function(bookingId) {
+                cancelBookingIdInput.value = bookingId;
+                cancelModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            window.closeCancelModal = function() {
+                cancelModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                cancelForm.reset();
+            }
+
+            cancelModal.addEventListener('click', function(e) {
+                if (e.target === cancelModal) {
+                    closeCancelModal();
+                }
+            });
+
+            cancelForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const bookingId = cancelBookingIdInput.value;
+                const reason = document.getElementById('cancellationReason').value;
+
+                try {
+                    console.log('Sending request with:', { booking_id: parseInt(bookingId), reason });
+                    
+                    const response = await fetch('cancel_booking.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            booking_id: parseInt(bookingId),
+                            reason: reason
+                        })
+                    });
+
+                    const text = await response.text(); // Get raw response text
+                    console.log('Raw response:', text);
+                    
+                    let result;
+                    try {
+                        result = JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                        throw new Error('Server response was not valid JSON: ' + text);
+                    }
+
+                    if (response.ok && result.success) {
+                        alert(result.message);
+                        location.reload();
+                    } else {
+                        throw new Error(result.message || 'Failed to cancel booking');
+                    }
+                } catch (error) {
+                    console.error('Error details:', error);
+                    alert('Error: ' + error.message);
+                } finally {
+                    closeCancelModal();
                 }
             });
         });

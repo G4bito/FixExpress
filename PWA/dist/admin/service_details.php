@@ -1,8 +1,30 @@
 <?php
+session_start();
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 include '../database/server.php';
+
+// --- User data fetching ---
+$user_logged_in = isset($_SESSION['user_id']);
+$user_fullname = '';
+$user_email = '';
+
+if ($user_logged_in) {
+    $user_id = $_SESSION['user_id'];
+    $userQuery = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE user_id = ?");
+    if ($userQuery) {
+        $userQuery->bind_param("i", $user_id);
+        $userQuery->execute();
+        $userResult = $userQuery->get_result();
+        if ($user = $userResult->fetch_assoc()) {
+            $user_fullname = trim($user['first_name'] . ' ' . $user['last_name']);
+            $user_email = $user['email'];
+        }
+        $userQuery->close();
+    }
+}
+// --- End of user data fetching ---
 
 if (!isset($_GET['id'])) {
   die("No service selected.");
@@ -628,9 +650,7 @@ $row = $result->fetch_assoc();
 
       <form id="bookingForm" method="POST" action="submit_booking.php" enctype="multipart/form-data">
         <input type="hidden" name="worker_id" id="workerId">
-        <?php if(isset($_SESSION['user_id'])): ?>
-            <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
-        <?php endif; ?>
+        
 
         <div class="form-group">
           <label>Full Name</label>
@@ -700,7 +720,12 @@ $row = $result->fetch_assoc();
           </div>
         </div>
 
-        <div style="margin-top: -10px; text-align: center;">
+        <div class="form-group" style="margin-top: -10px;">
+          <label>Upload Image or Video of Problem</label>
+          <input type="file" name="problem_image" accept="image/*,video/mp4,video/quicktime,video/webm" style="padding: 10px; border: 1px solid var(--border-light); border-radius: var(--border-radius-md); width: 100%; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-top: 20px; text-align: center;">
           <button type="submit" class="btn-book" style="padding: 12px 30px; font-size: 16px;">Confirm Booking</button>
         </div>
       </form>
@@ -717,7 +742,15 @@ $row = $result->fetch_assoc();
   </div>
 
   <script>
+const userLoggedIn = <?php echo json_encode($user_logged_in); ?>;
+
 function openModal(workerId) {
+  if (!userLoggedIn) {
+    // User is not logged in, redirect to login page
+    alert('Please log in or sign up to book a service.');
+    window.location.href = '../../login.php'; // Adjust path to your login page
+    return;
+  }
   document.getElementById('bookingModal').style.display = 'flex';
   document.getElementById('workerId').value = workerId;
 }

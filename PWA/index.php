@@ -284,7 +284,7 @@ if ($result && $result->num_rows > 0) {
                 $stars = str_repeat('⭐', $rating['rating']);
                 $position = $positions[$i];
                 echo "
-                <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); margin: 10px; transition: all 0.3s ease;'>
+                <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; margin: 10px;'>
                     <div class='rating-stars' style='margin-bottom: 10px; font-size: 18px;'>{$stars}</div>
                     <p style='font-style: italic; margin-bottom: 15px;'>\"" . htmlspecialchars($rating['comment']) . "\"</p>
                     <div class='feedback-author' style='display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2);'>
@@ -299,7 +299,7 @@ if ($result && $result->num_rows > 0) {
             while ($i < 3) {
                 $position = $positions[$i];
                 echo "
-                <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); margin: 10px; transition: all 0.3s ease;'>
+                <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; margin: 10px;'>
                     <p style='font-style: italic; margin-bottom: 15px;'>Be the first to share your experience!</p>
                     <div class='feedback-author' style='display: flex; align-items: center;'>
                         <div>
@@ -314,7 +314,7 @@ if ($result && $result->num_rows > 0) {
             // Show placeholder for all three bubbles if no ratings
             foreach ($positions as $position) {
                 echo "
-                <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 20px; border-radius: 15px; box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); margin: 10px; transition: all 0.3s ease;'>
+                <div class='feedback-bubble bubble-{$position}' style='flex: 1; min-width: 0; margin: 10px;'>
                     <p style='font-style: italic; margin-bottom: 15px;'>Be the first to share your experience!</p>
                     <div class='feedback-author' style='display: flex; align-items: center;'>
                         <div>
