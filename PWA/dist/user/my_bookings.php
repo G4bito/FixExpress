@@ -66,14 +66,17 @@ while ($row = $result->fetch_assoc()) {
     if ($status == 'Completed') {
         $category = 'completed';
     } elseif ($status == 'Pending') {
-        $category = 'recent';
+        $category = 'pending';
+    } elseif ($status == 'Cancellation Requested') {
+        $category = 'requests';
+    } elseif ($status == 'Cancelled') {
+        $category = 'cancelled';
     } else {
         $category = 'current';
     }
     $bookings[$category][] = $row;
 }
 ?>
-
 <!doctype html>
 <html lang="en" data-pc-preset="preset-1" data-pc-sidebar-caption="true" data-pc-direction="ltr" dir="ltr" data-pc-theme="light">
 <head>
@@ -168,14 +171,20 @@ while ($row = $result->fetch_assoc()) {
             <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors tab-active" data-tab="all">
                 All Bookings
             </button>
-            <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="recent">
+            <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="pending">
                 Pending
             </button>
             <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="current">
                 Current
             </button>
+            <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="requests">
+                Requests
+            </button>
             <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="completed">
                 Completed
+            </button>
+            <button class="tab-button py-2 px-4 text-gray-600 hover:text-orange-600 transition-colors" data-tab="cancelled">
+                Cancelled
             </button>
         </div>
 
@@ -196,7 +205,8 @@ while ($row = $result->fetch_assoc()) {
                                 'Pending' => 'bg-yellow-100 text-yellow-800',
                                 'Approved' => 'bg-blue-100 text-blue-800',
                                 'Completed' => 'bg-green-100 text-green-800',
-                                'Cancelled' => 'bg-red-100 text-red-800'
+                                'Cancelled' => 'bg-red-100 text-red-800',
+                                'Cancellation Requested' => 'bg-yellow-100 text-yellow-800',
                             ];
                             $statusColor = $statusColors[$booking['status']] ?? 'bg-gray-100 text-gray-800';
                             ?>
@@ -522,7 +532,8 @@ while ($row = $result->fetch_assoc()) {
                     'Pending': 'bg-yellow-100 text-yellow-800',
                     'Approved': 'bg-blue-100 text-blue-800',
                     'Completed': 'bg-green-100 text-green-800',
-                    'Cancelled': 'bg-red-100 text-red-800'
+                    'Cancelled': 'bg-red-100 text-red-800',
+                    'Cancellation Requested': 'bg-yellow-100 text-yellow-800'
                 };
 
                 // Set modal content
