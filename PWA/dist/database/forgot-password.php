@@ -20,13 +20,13 @@ if (isset($_POST['send_code'])) {
         mysqli_query($conn, "UPDATE users SET reset_code='$otp', reset_expires='$expires' WHERE email='$email'");
 
         // Send email
-        $mail = new PHPMailer(true); // need ni may phpmailer animal, manbantay ak nid youtube
+        $mail = new PHPMailer(true); 
         try {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'youremail@gmail.com'; // your Gmail
-            $mail->Password = 'your-app-password';   // Gmail App Password (not your login password)
+            $mail->Password = 'your-app-password';   // Gmail App Password 
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 

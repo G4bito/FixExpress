@@ -5,6 +5,31 @@ include 'includes/admin_auth.php';
 // Fetch bookings with service names
 $result = $conn->query("SELECT b.*, s.service_name FROM bookings b LEFT JOIN services s ON b.service_id = s.service_id ORDER BY b.booking_id DESC");
 
+// Function to get file preview HTML
+function getFilePreviewHtml($filename) {
+    if (!$filename) return '-';
+    
+    $filepath = "../uploads/" . $filename;
+    $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    
+    // Define which extensions should be displayed as images
+    $image_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+    
+    if (in_array($extension, $image_extensions)) {
+        return "<a href='$filepath' target='_blank'>
+                  <img src='$filepath' alt='Preview' style='max-width: 50px; max-height: 50px;'>
+                </a>";
+    } else {
+        $icon = 'far fa-file';
+        if ($extension == 'pdf') $icon = 'far fa-file-pdf';
+        if (in_array($extension, ['doc', 'docx'])) $icon = 'far fa-file-word';
+        
+        return "<a href='$filepath' target='_blank' class='btn btn-sm btn-light'>
+                  <i class='$icon'></i> View File
+                </a>";
+    }
+}
+
 // Fetch workers (include service name)
 $workersResult = $conn->query("SELECT w.*, s.service_name FROM workers w LEFT JOIN services s ON w.service_id = s.service_id ORDER BY w.worker_id DESC");
 
@@ -26,6 +51,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Manage Bookings & Workers</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
     :root {
         --primary-orange: #C8631E;
@@ -421,6 +447,15 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
             <h2 class="stat-value"><?= number_format($pendingWorkers) ?></h2>
             <div class="stat-description">Awaiting approval</div>
         </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">
+                ⏰
+            </div>
+            <div class="stat-label">Completed </div>
+            <h2 class="stat-value"><?= number_format($pendingWorkers) ?></h2>
+            <div class="stat-description">Awaiting approval</div>
+        </div>
     </div>
 
     <!-- Bookings Section -->
@@ -440,6 +475,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                         <th>Date</th>
                         <th>Time</th>
                         <th>Service</th>
+                        <th>Uploaded File</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -457,6 +493,7 @@ $approvedWorkers = $conn->query("SELECT COUNT(*) as count FROM workers WHERE sta
                                 <td><?= htmlspecialchars($row['date']) ?></td>
                                 <td><?= htmlspecialchars(date('g:i A', strtotime($row['time']))) ?></td>
                                 <td><?= htmlspecialchars($row['service_name'] ?? 'Unknown Service') ?></td>
+                                <td><?= getFilePreviewHtml($row['upload_file']) ?></td>
                                 <td>
                                     <?php
                                     $statusClass = match($row['status']) {

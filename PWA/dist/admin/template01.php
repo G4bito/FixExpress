@@ -285,6 +285,5 @@ h4::after {
     });
   </script>
 
-  <?php include '../includes/footer.php'; ?>
 </body>
 </html>

@@ -128,6 +128,78 @@ $row = $result->fetch_assoc();
       box-shadow: 0 8px 30px var(--shadow-light);
       padding: 45px;
       text-align: center;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    /* Custom Scrollbar */
+    .service-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .service-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .service-container::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 4px;
+    }
+
+    .service-container::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Image Modal */
+    .image-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90vh;
+    }
+
+    .modal-content img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 10px;
+    }
+
+    .clickable-image {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .clickable-image:hover {
+      transform: scale(1.02);
     }
 
     /* Typography */
@@ -197,6 +269,85 @@ $row = $result->fetch_assoc();
       font-size: 14px;
       color: var(--text-medium);
       margin: 4px 0;
+    }
+    
+    /* Contact input group styles */
+    .contact-input-group {
+      position: relative;
+      display: flex;
+      width: 100%;
+    }
+    
+    .contact-input-group input {
+      flex: 1;
+      border-radius: 4px 0 0 4px !important;
+    }
+    
+    .contact-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .contact-dropdown button {
+      height: 40px;
+      padding: 0 10px;
+      background: var(--bg-light);
+      border: 1px solid var(--border-light);
+      border-left: none;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      color: var(--text-medium);
+      transition: background-color 0.2s;
+    }
+    
+    .contact-dropdown button:hover {
+      background: #eee;
+    }
+    
+    .contact-dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      min-width: 160px;
+      background-color: #fff;
+      box-shadow: 0 8px 16px var(--shadow-medium);
+      z-index: 2;
+      max-height: 200px;
+      overflow-y: auto;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--border-light);
+    }
+    
+    .contact-dropdown-content a {
+      color: var(--text-dark);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      transition: background-color 0.2s;
+    }
+    
+    .contact-dropdown-content a:hover {
+      background-color: var(--bg-light);
+    }
+    
+    .file-input-group {
+      margin-top: 5px;
+    }
+    
+    .file-input-group input[type="file"] {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-light);
+      border-radius: var(--border-radius-md);
+      background-color: var(--bg-light);
+    }
+    
+    .file-input-group .text-muted {
+      display: block;
+      margin-top: 5px;
+      font-size: 12px;
+      color: var(--text-light);
     }
 
     .rating {
@@ -457,25 +608,65 @@ $row = $result->fetch_assoc();
       <h3>Book This Professional</h3>
       <p class="modal-subtitle">Fill in your details and the worker will contact you soon.</p>
 
-      <form id="bookingForm" method="POST" action="submit_booking.php">
+      <?php 
+      if(isset($_SESSION['user_id'])) {
+          // Get user details
+          $stmt = $conn->prepare("SELECT fullname, email FROM users WHERE user_id = ?");
+          $stmt->bind_param("i", $_SESSION['user_id']);
+          $stmt->execute();
+          $result = $stmt->get_result();
+          $user = $result->fetch_assoc();
+
+          // Get user's saved contact numbers
+          $stmt = $conn->prepare("SELECT contact_number FROM user_contacts WHERE user_id = ?");
+          $stmt->bind_param("i", $_SESSION['user_id']);
+          $stmt->execute();
+          $contacts_result = $stmt->get_result();
+          $saved_contacts = $contacts_result->fetch_all(MYSQLI_ASSOC);
+      }
+      ?>
+
+      <form id="bookingForm" method="POST" action="submit_booking.php" enctype="multipart/form-data">
         <input type="hidden" name="worker_id" id="workerId">
-        
+        <?php if(isset($_SESSION['user_id'])): ?>
+            <input type="hidden" name="user_id" value="<?php echo $_SESSION['user_id']; ?>">
+        <?php endif; ?>
 
         <div class="form-group">
           <label>Full Name</label>
-        <input type="text" name="fullname" placeholder="Enter your full name" required pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" title="Please enter a valid full name (e.g., Charles D. Gervacio)">
-
+          <input type="text" name="fullname" placeholder="Enter your full name" required 
+                 pattern="^[A-Za-zÀ-ÿÑñ]+(\s([A-Za-zÀ-ÿÑñ]\.|[A-Za-zÀ-ÿÑñ]+)){1,3}$" 
+                 title="Please enter a valid full name (e.g., Charles D. Gervacio)"
+                 value="<?php echo isset($user) ? htmlspecialchars($user['fullname']) : ''; ?>"
+                 <?php echo isset($user) ? 'readonly' : ''; ?>>
         </div>
 
         <div class="form-group">
           <label>Contact Number</label>
-          <input type="text" name="contact" maxlength="13" placeholder="e.g. 09123456789 or +639123456789" required pattern="^(09\d{9}|\+639\d{9})$" title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
-
+          <div class="contact-input-group">
+            <input type="text" name="contact" id="contactInput" maxlength="13" 
+                   placeholder="e.g. 09123456789 or +639123456789" required 
+                   pattern="^(09\d{9}|\+639\d{9})$" 
+                   title="Please enter a valid PH number (e.g., 09123456789 or +639123456789)">
+            <?php if(isset($saved_contacts) && !empty($saved_contacts)): ?>
+            <div class="contact-dropdown">
+                <button type="button" onclick="toggleContactDropdown()">▼</button>
+                <div id="contactDropdown" class="contact-dropdown-content">
+                    <?php foreach($saved_contacts as $contact): ?>
+                        <a href="#" onclick="selectContact('<?php echo htmlspecialchars($contact['contact_number']); ?>')"><?php echo htmlspecialchars($contact['contact_number']); ?></a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+          </div>
         </div>
 
         <div class="form-group">
           <label>Email Address</label>
-          <input type="text" id="email" name="email" placeholder="you@example.com" required title="Please enter a valid email ending with .com or .com.ph (e.g., name@example.com or name@example.com.ph)">
+          <input type="text" id="email" name="email" placeholder="you@example.com" required 
+                 title="Please enter a valid email ending with .com or .com.ph (e.g., name@example.com or name@example.com.ph)"
+                 value="<?php echo isset($user) ? htmlspecialchars($user['email']) : ''; ?>"
+                 <?php echo isset($user) ? 'readonly' : ''; ?>>
         </div>
 
         <div class="form-group">
@@ -486,7 +677,7 @@ $row = $result->fetch_assoc();
 
         <div class="form-group half">
           <div>
-            <label>Date</label>
+            <label>Preferred Date</label>
             <input type="date" name="date" required>
           </div>
           <div>
@@ -498,6 +689,15 @@ $row = $result->fetch_assoc();
         <div class="form-group" style="margin-bottom: 30px;">
           <label>Please Specify Your Problem <span style="color: #ff0000;">*</span></label>
           <textarea name="notes" placeholder="Please describe your problem in detail..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Upload File (Optional)</label>
+          <div class="file-input-group">
+            <input type="file" name="upload_file" id="uploadFile" accept="image/*,.pdf,.doc,.docx"
+                   class="form-control-file">
+            <small class="form-text text-muted">Upload photos or documents about what needs to be repaired (Max size: 5MB)</small>
+          </div>
         </div>
 
         <div style="margin-top: -10px; text-align: center;">
