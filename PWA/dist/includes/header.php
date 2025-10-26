@@ -43,9 +43,9 @@ if ($user_id) {
         <span>FixExpress</span>
     </a>
     <nav class="nav">
-        <a href="#services">Services</a>
-        <a href="#how-it-works">How It Works</a>
-        <a href="#feedback">Feedback</a>
+        <a href="/FixExpress/PWA/index.php#services">Services</a>
+        <a href="/FixExpress/PWA/index.php#how-it-works">How It Works</a>
+        <a href="/FixExpress/PWA/index.php#feedback">Feedback</a>
         <a href="/FixExpress/PWA/dist/admin/website_ratings.php">Website Ratings</a>
     </nav>
     <div class="auth-buttons">
@@ -56,7 +56,7 @@ if ($user_id) {
                 </div>
                 <div class="profile-dropdown" id="profileDropdown">
                     <p><strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong></p>
-                    <a href="#" id="viewProfile">View Profile</a>
+                    <a id="viewProfile">View Profile</a>
                     <a href="/FixExpress/PWA/dist/user/my_bookings.php" id="viewProfile">My Bookings</a>
                     <a href="<?php echo '/FixExpress/PWA/logout.php'; ?>" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
 

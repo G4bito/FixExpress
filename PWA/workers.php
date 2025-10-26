@@ -150,6 +150,7 @@ foreach ($bookings as &$b) {
 <title>Worker Dashboard - FixExpress</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="dist/css/modal.css">
 <style>
 /* --------------------------------------------
    MODAL STYLES
@@ -246,12 +247,113 @@ foreach ($bookings as &$b) {
   background: white;
   padding: 2rem;
   border-radius: 0.5rem;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
+  width: 95%;
+  max-width: 500px;
+  max-height: 85vh;
   overflow-y: auto;
   position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #f39c12;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #e67e22;
+}
+
+/* Image modal styles */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.image-modal.active {
+  display: flex;
+  animation: fadeIn 0.3s ease;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 95%;
+  max-height: 90vh;
+  background: transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.image-modal-content img {
+  display: block;
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: -45px;
+  right: 0;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 10px;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.image-modal-close:hover {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.view-image-btn {
+  background: #f39c12;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  display: block;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-image-btn:hover {
+  background: #e67e22;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .modal-header {
@@ -467,6 +569,7 @@ body {
   font-weight: 800;
   background: linear-gradient(to right, #fff, #ffd28a);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 10px;
 }
@@ -1204,13 +1307,13 @@ html {
 
 <!-- View Details Modal -->
 <div id="viewDetailsModal" class="profile-modal">
-  <div class="profile-modal-content">
+  <div class="modal-content">
     <span class="close-btn" id="closeViewDetailsModal">&times;</span>
-    <h2>Booking Details</h2>
-    <div id="bookingDetailsContent" style="margin-top: 20px;">
+    <h2 style="font-size: 24px; margin-bottom: 20px; color: #333; padding-right: 30px;">Booking Details</h2>
+    <div id="bookingDetailsContent">
       <!-- Content will be populated dynamically -->
     </div>
-    <div class="profile-actions">
+    <div style="text-align: center;">
       <button type="button" class="close-btn-secondary" id="closeViewDetailsBtn">Close</button>
     </div>
   </div>
@@ -1623,33 +1726,41 @@ function filterBookings(status, event) {
 }
 
 // Booking completion function
-function completeBooking(bookingId) {
+async function completeBooking(bookingId) {
     if (!confirm('Are you sure you want to mark this booking as completed?')) return;
 
-    fetch('./dist/admin/complete_booking.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'booking_id=' + bookingId
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Booking marked as completed!');
-            // Refresh the page to update statistics
-            location.reload();
-        } else {
-            alert('Failed to complete booking: ' + data.message);
+    try {
+        const response = await fetch('./dist/admin/complete_booking.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                booking_id: bookingId
+            }).toString()
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    })
-    .catch(error => {
+
+        const data = await response.json();
+        
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to complete booking');
+        }
+
+        alert('Booking marked as completed!');
+        // Refresh the page to update statistics
+        location.reload();
+    } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while processing your request.');
-    });
+        alert(error.message || 'An error occurred while processing your request.');
+    }
 }
 
-function viewDetails(bookingId) {
+async function viewDetails(bookingId) {
     const viewDetailsModal = document.getElementById('viewDetailsModal');
     const closeViewDetailsModal = document.getElementById('closeViewDetailsModal');
     const closeViewDetailsBtn = document.getElementById('closeViewDetailsBtn');
@@ -1657,28 +1768,182 @@ function viewDetails(bookingId) {
 
     // Show loading state
     bookingDetailsContent.innerHTML = '<p style="text-align: center; padding: 20px;">Loading booking details...</p>';
-    viewDetailsModal.classList.add('show');
+    viewDetailsModal.style.display = 'block';
 
     // Close modal handlers
-    const closeModal = () => viewDetailsModal.classList.remove('show');
+    const closeModal = () => {
+        viewDetailsModal.style.display = 'none';
+    };
+    
     closeViewDetailsModal.onclick = closeModal;
     closeViewDetailsBtn.onclick = closeModal;
     viewDetailsModal.onclick = (e) => {
         if (e.target === viewDetailsModal) closeModal();
     };
 
+    // Initialize image modal if not already present
+    let imageModal = document.getElementById('imageModal');
+    if (!imageModal) {
+        imageModal = document.createElement('div');
+        imageModal.id = 'imageModal';
+        imageModal.className = 'image-modal';
+        imageModal.innerHTML = `
+            <div class="image-modal-content" style="background: white; padding: 20px; border-radius: 8px; position: relative; max-width: 90%; max-height: 90vh; overflow: hidden;">
+                <button class="image-modal-close" onclick="closeImageModal()" style="position: absolute; right: 10px; top: 10px; background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+                <img id="modalImage" src="" alt="Uploaded image" style="max-width: 100%; max-height: calc(90vh - 40px); display: block; margin: 0 auto;">
+            </div>
+        `;
+        // Add modal styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .image-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 9999;
+                justify-content: center;
+                align-items: center;
+            }
+            .image-modal.active {
+                display: flex;
+            }
+            .image-modal-content {
+                animation: zoomIn 0.3s ease;
+            }
+            @keyframes zoomIn {
+                from {
+                    transform: scale(0.5);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(imageModal);
+        
+        // Define image modal functions only once
+        if (typeof window.openImageModal === 'undefined') {
+            window.openImageModal = function(fileSrc, fileType) {
+                console.log('Opening media modal with original src:', fileSrc);
+                
+                // Ensure we have a valid path starting with ./dist/uploads/
+                if (!fileSrc.startsWith('./dist/uploads/')) {
+                    // If it starts with ../uploads/, replace it
+                    if (fileSrc.startsWith('../uploads/')) {
+                        fileSrc = fileSrc.replace('../uploads/', './dist/uploads/');
+                    } 
+                    // If it's just a filename, add the path
+                    else if (!fileSrc.includes('/')) {
+                        fileSrc = './dist/uploads/' + fileSrc;
+                    }
+                }
+                
+                console.log('Processed file path:', fileSrc);
+                
+                const modal = document.getElementById('imageModal');
+                const modalImg = document.getElementById('modalImage');
+                const modalVideo = document.getElementById('modalVideo');
+                const loadingSpinner = document.getElementById('mediaLoadingSpinner');
+                
+                // Reset both elements
+                modalImg.style.display = 'none';
+                modalVideo.style.display = 'none';
+                modalImg.style.opacity = '0';
+                modalVideo.style.opacity = '0';
+                
+                // Show loading state
+                loadingSpinner.style.display = 'block';
+                modal.classList.add('active');
+
+                if (fileType === 'video' || fileSrc.toLowerCase().endsWith('.mp4')) {
+                    modalVideo.style.display = 'block';
+                    modalVideo.src = fileSrc;
+                    modalVideo.style.opacity = '1';
+                    loadingSpinner.style.display = 'none';
+                } else {
+                    modalImg.style.display = 'block';
+                    modalImg.src = fileSrc;
+                
+                // Load the image
+                modalImg.onload = function() {
+                    console.log('Image loaded successfully');
+                    modalImg.style.opacity = '1';
+                };
+                
+                modalImg.onerror = function() {
+                    console.error('Failed to load image:', imgSrc);
+                    // Log more details about the failure
+                    console.log('Image URL attempted:', imgSrc);
+                    console.log('Full page URL:', window.location.href);
+                    alert('Failed to load image. Ayos mo pare');
+                    closeImageModal();
+                };
+                
+                // Add timestamp to prevent caching
+                const timestamp = new Date().getTime();
+                const imageUrl = imgSrc + '?t=' + timestamp;
+                console.log('Loading image with URL:', imageUrl);
+                modalImg.src = imageUrl;
+            };
+
+            window.closeImageModal = function() {
+                const modal = document.getElementById('imageModal');
+                const modalVideo = document.getElementById('modalVideo');
+                if (modalVideo) {
+                    modalVideo.pause();
+                    modalVideo.src = '';
+                }
+                modal.classList.remove('active');
+            };
+        }
+
+            // Add event listeners only once
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeImageModal();
+                }
+            });
+
+            imageModal.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeImageModal();
+                }
+            });
+        }
+    }
+
     // Fetch booking details
-    fetch('./dist/admin/get_booking_details.php', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'booking_id=' + bookingId
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const booking = data.booking;
+    try {
+        const response = await fetch('./dist/admin/get_booking_details.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({
+                booking_id: bookingId
+            }).toString()
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Booking data received:', data);
+
+        if (!data || !data.success || !data.booking) {
+            throw new Error(data.message || 'Failed to load booking details');
+        }
+
+        const booking = data.booking;
             const statusClass = {
                 'pending': 'warning',
                 'approved': 'info',
@@ -1718,31 +1983,52 @@ function viewDetails(bookingId) {
             }
 
             bookingDetailsContent.innerHTML = `
-                <div style="display: grid; gap: 20px;">
-                    <div class="detail-group" style="padding-bottom: 20px;">
+                <div style="display: grid; gap: 15px;">
+                    <div class="detail-group" style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
                         <h4 style="color: #333; margin-bottom: 15px; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
                             Booking Information
                         </h4>
-                        <div style="display: grid; gap: 10px;">
-                            <p><strong>Service:</strong> ${booking.service_name}</p>
-                            <p><strong>Status:</strong> <span class="badge bg-${statusClass}">${booking.status}</span></p>
-                            <p><strong>Date:</strong> ${booking.date}</p>
-                            <p><strong>Time:</strong> ${booking.time}</p> 
-                            <p><strong>Price:</strong> ${parseFloat(booking.price) > 0 ? new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(booking.price) : 'Not set'}</p>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <p style="margin: 0;"><strong>Service:</strong> ${booking.service_name}</p>
+                                <span class="badge bg-${statusClass}" style="padding: 6px 12px;">${booking.status}</span>
+                            </div>
+                            <p style="margin: 0;"><strong>Date:</strong> ${booking.date}</p>
+                            <p style="margin: 0;"><strong>Time:</strong> ${booking.time}</p>
+                            <p style="margin: 0;"><strong>Price:</strong> ${booking.price || 'Not set'}</p>
+                            <div style="background: white; padding: 10px; border-radius: 6px; margin-top: 5px;">
+                                <p style="margin: 0;"><strong>Problem Description:</strong></p>
+                                <p style="margin: 5px 0 0 0; white-space: pre-wrap;">${booking.notes}</p>
+                            </div>
+                            ${booking.file_info ? `
+                                <div class="file-info">
+                                    ${booking.file_info.is_image || booking.file_info.is_video ? `
+                                        <button class="view-image-btn" onclick="openImageModal('${booking.file_info.path}', '${booking.file_info.file_type}')" 
+                                            style="padding: 10px 20px; background: #ff8c1a; color: white; border: none; border-radius: 5px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                            <i class="fas ${booking.file_info.is_video ? 'fa-video' : 'fa-image'}"></i>
+                                            View Uploaded ${booking.file_info.is_video ? 'Video' : 'Image'}
+                                        </button>
+                                    ` : `
+                                        <p style="margin: 0;"><strong>Uploaded File:</strong> ${booking.file_info.extension.toUpperCase()} file</p>
+                                    `}
+                                </div>
+                            ` : '<p style="color: #666;">No file uploaded</p>'}
                         </div>
                     </div>
 
                     <hr style="border: none; border-top: 1px solid #eee; margin: 0;">
 
-                    <div class="detail-group" style="padding-bottom: 20px;">
+                    <div class="detail-group" style="padding: 15px; background: #f8f9fa; border-radius: 8px;">
                         <h4 style="color: #333; margin-bottom: 15px; border-bottom: 2px solid #f39c12; padding-bottom: 10px;">
                             Customer Information
                         </h4>
-                        <div style="display: grid; gap: 10px;">
-                            <p><strong>Name:</strong> ${booking.fullname}</p>
-                            <p><strong>Address:</strong> ${booking.address}</p>
-                            <p><strong>Email:</strong> ${booking.email}</p>
-                            <p><strong>Contact:</strong> ${booking.contact}</p>
+                        <div style="display: grid; gap: 12px;">
+                            <p style="margin: 0;"><strong>Name:</strong> ${booking.fullname}</p>
+                            <p style="margin: 0;"><strong>Contact:</strong> ${booking.contact}</p>
+                            <div style="background: white; padding: 10px; border-radius: 6px;">
+                                <p style="margin: 0;"><strong>Address:</strong><br>${booking.address}</p>
+                            </div>
+                            <p style="margin: 0;"><strong>Email:</strong> ${booking.email}</p>
                         </div>
                     </div>
 
@@ -1754,21 +2040,20 @@ function viewDetails(bookingId) {
                         </h4>
                         <div style="display: grid; gap: 10px;">
                             <p style="white-space: pre-wrap;">${booking.notes || 'No problem description provided'}</p>
-                            ${problemMediaHtml}
                         </div>
                     </div>
 
                     ${declineReasonHtml}
                 </div>
             `;
-        } else {
-            bookingDetailsContent.innerHTML = '<p style="color: #721c24; text-align: center; padding: 20px;">Failed to load booking details.</p>';
-        }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error:', error);
-        bookingDetailsContent.innerHTML = '<p style="color: #721c24; text-align: center; padding: 20px;">An error occurred while loading the booking details.</p>';
-    });
+        bookingDetailsContent.innerHTML = `
+            <p style="color: #721c24; text-align: center; padding: 20px;">
+                ${error.message || 'An error occurred while loading the booking details.'}
+            </p>
+        `;
+    }
 }
 
 function smoothScrollTo(elementId) {

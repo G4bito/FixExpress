@@ -62,16 +62,60 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         die("Error: You must be logged in to make a booking");
     }
 
-    // Save booking with user_id
-    $stmt = $conn->prepare("INSERT INTO bookings (user_id, worker_id, fullname, contact, email, address, date, time, notes, service_id, problem_image_path) 
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iisssssssis", $user_id, $worker_id, $fullname, $contact, $email, $address, $date, $time, $notes, $service_id, $image_path);
-
-    if ($stmt->execute()) {
+    try {
+        // Handle file upload
+        $upload_file = null;
+        if (isset($_FILES['upload_file']) && $_FILES['upload_file']['error'] == 0) {
+            // Validate file size (5MB max)
+            if ($_FILES['upload_file']['size'] > 5 * 1024 * 1024) {
+                throw new Exception("File size too large. Maximum size is 5MB.");
+            }
+            
+            // Validate file type
+            $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime_type = finfo_file($finfo, $_FILES['upload_file']['tmp_name']);
+            finfo_close($finfo);
+            
+            if (!in_array($mime_type, $allowed_types)) {
+                throw new Exception("Invalid file type. Allowed types: JPG, PNG, GIF, PDF, DOC, DOCX");
+            }
+            
+            // Generate unique filename
+            $extension = pathinfo($_FILES['upload_file']['name'], PATHINFO_EXTENSION);
+            $filename = uniqid('upload_') . '.' . $extension;
+            $upload_path = __DIR__ . '/../uploads/' . $filename;
+            
+            // Move uploaded file
+            if (!move_uploaded_file($_FILES['upload_file']['tmp_name'], $upload_path)) {
+                throw new Exception("Failed to upload file.");
+            }
+            
+            $upload_file = $filename;
+        }
+        
+        // Start transaction
+        $conn->begin_transaction();
+        
+        // Save booking with user_id and upload_file
+        $stmt = $conn->prepare("INSERT INTO bookings (user_id, worker_id, fullname, contact, email, address, date, time, notes, service_id, upload_file) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("iisssssssis", $user_id, $worker_id, $fullname, $contact, $email, $address, $date, $time, $notes, $service_id, $upload_file);
+        $stmt->execute();
+        
+        // Save contact number if it doesn't exist
+        $stmt = $conn->prepare("INSERT IGNORE INTO user_contacts (user_id, contact_number) VALUES (?, ?)");
+        $stmt->bind_param("is", $user_id, $contact);
+        $stmt->execute();
+        
+        // Commit transaction
+        $conn->commit();
         header("Location: service_details.php?id=$service_id&success=1");
         exit();
-    } else {
-        echo "Error: " . $conn->error;
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        $conn->rollback();
+        echo "Error: " . $e->getMessage();
     }
 }
 ?>

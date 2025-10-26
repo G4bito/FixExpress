@@ -1,0 +1,162 @@
+/* Booking Details Modal */
+.profile-modal {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.profile-modal[style*="display: block"] {
+    display: flex !important;
+}
+
+.profile-modal .modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.profile-modal .close-btn {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    z-index: 1;
+}
+
+.profile-modal .close-btn:hover {
+    color: #333;
+}
+
+.profile-modal .close-btn-secondary {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 8px 20px;
+    border-radius: 6px;
+    color: #666;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.profile-modal .close-btn-secondary:hover {
+    background: #e9ecef;
+}
+
+/* Image Modal */
+.image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.image-modal.active {
+    display: flex !important;
+}
+
+.image-modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 85vh;
+    margin: 20px;
+}
+
+.image-modal-content img {
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.image-modal-close {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 10px;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.image-modal-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Custom Scrollbar */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #f39c12;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #e67e22;
+}
+
+/* View Image Button */
+.view-image-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f39c12;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 15px;
+    font-weight: 600;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.view-image-btn:hover {
+    background: #e67e22;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.view-image-btn i {
+    margin-right: 8px;
+}
